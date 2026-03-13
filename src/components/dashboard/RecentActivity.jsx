@@ -89,7 +89,7 @@ const getActivityIcon = (item) => {
 };
 
 export default function RecentActivity({
-  title = "Recent Activity",
+  title = "Recent Accctivity",
   autoRefresh = true,
   onAutoRefreshChange,
 }) {
