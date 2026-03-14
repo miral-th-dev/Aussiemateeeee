@@ -16,8 +16,9 @@ const ROUTE_TITLES = {
   "/jobs": "Jobs",
   "/cleaners": "Cleaners",
   "/customers": "Customers",
-  "/payments": "Payments & Escrow",
+  "/cleaner-subscriptions": "Cleaner Subscriptions",
   "/settings": "Settings",
+  "/service-categories": "Categories",
 };
 
 function humanizeSegment(segment) {
@@ -31,12 +32,14 @@ function humanizeSegment(segment) {
 
 function isIdSegment(segment) {
   if (!segment) return false;
+  // Check if segment is purely numeric
+  const isNumeric = /^\d+$/.test(segment);
   // Check if segment looks like an ID (long alphanumeric string, typically 20+ characters)
   // MongoDB ObjectIds are 24 characters, but we'll check for 15+ to catch various ID formats
   const isLongAlphanumeric = /^[a-zA-Z0-9]{15,}$/.test(segment);
   // Also check if it's a UUID-like pattern (with or without hyphens)
   const isUuidLike = /^[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12}$/i.test(segment);
-  return isLongAlphanumeric || isUuidLike;
+  return isNumeric || isLongAlphanumeric || isUuidLike;
 }
 
 export default function Header({

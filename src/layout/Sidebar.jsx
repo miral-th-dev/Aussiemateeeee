@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LogOut, ChevronLeft, ChevronRight, Crown } from "lucide-react";
 import { clearAuth } from "../utils/auth";
 import logo from '../assets/icon/logoo.svg';
 import dashIcon from '../assets/icon/dash.svg';
@@ -13,6 +13,8 @@ import cleanerIcon from '../assets/icon/cleaner.svg';
 import cleanerLightIcon from '../assets/icon/cleanerLight.svg';
 import customerIcon from '../assets/icon/customer.svg';
 import customerLightIcon from '../assets/icon/customerLight.svg';
+import serviceIcon from '../assets/icon/sevice.svg';
+import serviceLightIcon from '../assets/icon/serviceLight.svg';
 import dollarIcon from '../assets/icon/dollar.svg';
 import dollarLightIcon from '../assets/icon/dollarLight.svg';
 import settingsIcon from '../assets/icon/settings.svg';
@@ -56,10 +58,15 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       iconLight: customerLightIcon
     },
     {
-      name: "Payments & Escrow",
-      path: "/payments",
-      icon: dollarIcon,
-      iconLight: dollarLightIcon
+      name: "Service Categories",
+      path: "/service-categories",
+      icon: serviceLightIcon,
+      iconLight: serviceIcon
+    },
+    {
+      name: "Cleaner Subscriptions",
+      path: "/cleaner-subscriptions",
+      iconComponent: Crown,
     },
     {
       name: "Settings",
@@ -138,12 +145,16 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                   >
                     {({ isActive }) => (
                       <>
-                        <img
-                          src={isActive ? item.iconLight : item.icon}
-                          alt={item.name}
-                          className="w-[18px] h-[18px]"
-                        />
-                        {item.name}
+                        {item.iconComponent ? (
+                          <item.iconComponent size={18} className={isActive ? "text-blue-600" : "text-gray-500"} />
+                        ) : (
+                          <img
+                            src={isActive ? item.iconLight : item.icon}
+                            alt={item.name}
+                            className="w-[18px] h-[18px]"
+                          />
+                        )}
+                        <span className={item.iconComponent && isActive ? "text-blue-600" : ""}>{item.name}</span>
                       </>
                     )}
                   </NavLink>
