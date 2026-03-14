@@ -1,24 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import Toggle from "../../components/common/Toggle";
-import CustomSelect from "../../components/common/CustomSelect";
+import { getCategories } from "../../api/services/categoryService";
+import { createSubscriptionPlan } from "../../api/services/subscriptionService";
 
 export default function AddPlan() {
     const navigate = useNavigate();
+    const [categories, setCategories] = useState([]);
+    const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    
     const [formData, setFormData] = useState({
         name: "",
-        category: "",
-        description: "",
-        price: "",
-        billingCycle: "",
-        contractDuration: "",
-        credits: "",
+        pricePerMonth: "",
+        durationMonths: "3",
+        creditsPerMonth: "",
         creditsPerLead: "",
-        estimatedLeads: "",
-        bonusLeads: "",
-        active: true
+        approxLeads: "",
+        includedCategories: [],
+        bonusLeads: "0",
+        isActive: true
     });
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await getCategories();
+                setCategories(response.data || []);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,17 +41,41 @@ export default function AddPlan() {
     };
 
     const handleToggle = (checked) => {
-        setFormData(prev => ({ ...prev, active: checked }));
+        setFormData(prev => ({ ...prev, isActive: checked }));
     };
 
-    const handleSubmit = (e) => {
+    const toggleCategory = (categoryId) => {
+        setFormData(prev => {
+            const current = prev.includedCategories;
+            const updated = current.includes(categoryId)
+                ? current.filter(id => id !== categoryId)
+                : [...current, categoryId];
+            return { ...prev, includedCategories: updated };
+        });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission
-        navigate("/cleaner-subscriptions");
+        setLoading(true);
+        try {
+            await createSubscriptionPlan({
+                ...formData,
+                pricePerMonth: Number(formData.pricePerMonth),
+                durationMonths: Number(formData.durationMonths),
+                creditsPerMonth: Number(formData.creditsPerMonth),
+                creditsPerLead: Number(formData.creditsPerLead),
+                bonusLeads: Number(formData.bonusLeads)
+            });
+            navigate("/cleaner-subscriptions");
+        } catch (error) {
+            console.error("Error creating subscription plan:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <div className="max-w-[1200px] mx-auto w-full pb-10">
+        <div className="max-w-[1200px] mx-auto w-full pb-10 font-inter">
             <div className="flex items-center gap-3 mb-6">
                 <button 
                     onClick={() => navigate("/cleaner-subscriptions")}
@@ -47,15 +86,15 @@ export default function AddPlan() {
                 <h1 className="text-xl font-semibold text-[#1F2937]">Add New Plan</h1>
             </div>
 
-            <main className="bg-white rounded-[16px]">
+            <main className="bg-white rounded-[16px] shadow-sm border border-gray-100">
                 <div className="p-6 border-b border-gray-100">
                     <h2 className="text-lg font-semibold text-[#111827]">Fill Below Details To Add New Plan</h2>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="p-6">
                     {/* Basic Plan Information */}
-                    <div className="mb-[20px]">
-                        <h3 className="text-sm font-semibold text-[#111827] mb-4">Basic Plan Information</h3>
+                    <div className="mb-[32px]">
+                        <h3 className="text-sm font-semibold text-[#6B7280] uppercase tracking-wider mb-6">Basic Plan Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                             <div>
                                 <label className="block text-sm font-medium text-[#374151] mb-2">Plan Name</label>
@@ -64,105 +103,112 @@ export default function AddPlan() {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    placeholder="e.g. Domestic / General Cleaning"
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                                    placeholder="e.g. Commercial Cleaning Leads"
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm"
                                     required
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#374151] mb-2">Plan Category</label>
-                                <CustomSelect
-                                    value={formData.category}
-                                    onChange={(value) => handleChange({ target: { name: 'category', value } })}
-                                    options={[
-                                        { value: 'domestic', label: 'Domestic Cleaning' },
-                                        { value: 'commercial', label: 'Commercial Cleaning' }
-                                    ]}
-                                    placeholder="Select plan category"
-                                    buttonClassName="w-full h-[42px] px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-transparent"
-                                />
+                            <div className="relative">
+                                <label className="block text-sm font-medium text-[#374151] mb-2">Included Categories</label>
+                                <div 
+                                    className="relative w-full min-h-[42px] px-4 py-2 border border-gray-200 rounded-lg flex flex-wrap gap-2 items-center cursor-pointer"
+                                    onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                                >
+                                    {formData.includedCategories.length === 0 ? (
+                                        <span className="text-gray-400 text-sm">Select categories</span>
+                                    ) : (
+                                        formData.includedCategories.map(catId => {
+                                            const cat = categories.find(c => c._id === catId);
+                                            return (
+                                                <span key={catId} className="bg-[#F3F4F6] text-[#374151] text-xs px-2 py-1 rounded-md flex items-center gap-1 group">
+                                                    {cat?.name}
+                                                    <X 
+                                                        size={12} 
+                                                        className="cursor-pointer hover:text-red-500" 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleCategory(catId);
+                                                        }}
+                                                    />
+                                                </span>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                                {isCategoryDropdownOpen && (
+                                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto p-2">
+                                        {categories.map(category => (
+                                            <div 
+                                                key={category._id}
+                                                className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
+                                                    formData.includedCategories.includes(category._id) 
+                                                    ? 'bg-[#EFF6FF] text-[#1F6FEB]' 
+                                                    : 'hover:bg-gray-50 text-[#374151]'
+                                                }`}
+                                                onClick={() => toggleCategory(category._id)}
+                                            >
+                                                <span className="text-sm font-medium">{category.name}</span>
+                                                {formData.includedCategories.includes(category._id) && <Check size={16} />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-[#374151] mb-2">Plan Description</label>
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                placeholder="Enter descriptions"
-                                rows={4}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm resize-y"
-                            />
                         </div>
                     </div>
 
                     {/* Pricing Details */}
-                    <div className="mb-[20px]">
-                        <h3 className="text-sm font-semibold text-[#111827] mb-4">Pricing Details</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="mb-[32px]">
+                        <h3 className="text-sm font-semibold text-[#6B7280] uppercase tracking-wider mb-6">Pricing & Duration</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-[#374151] mb-2">Monthly Price ($)</label>
                                 <input
                                     type="number"
                                     min="0"
-                                    name="price"
-                                    value={formData.price}
+                                    name="pricePerMonth"
+                                    value={formData.pricePerMonth}
                                     onChange={handleChange}
                                     placeholder="$ 00"
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-[#374151] mb-2">Billing Cycle</label>
-                                <CustomSelect
-                                    value={formData.billingCycle}
-                                    onChange={(value) => handleChange({ target: { name: 'billingCycle', value } })}
-                                    options={[
-                                        { value: 'monthly', label: 'Monthly Billing' },
-                                        { value: 'one-time', label: 'One Time Payment' }
-                                    ]}
-                                    placeholder="Select billing type"
-                                    buttonClassName="w-full h-[42px] px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-transparent"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#374151] mb-2">Minimum Contract Duration</label>
-                                <CustomSelect
-                                    value={formData.contractDuration}
-                                    onChange={(value) => handleChange({ target: { name: 'contractDuration', value } })}
-                                    options={[
-                                        { value: '1', label: '1 Month' },
-                                        { value: '3', label: '3 Months' },
-                                        { value: '6', label: '6 Months' },
-                                        { value: '12', label: '12 Months' }
-                                    ]}
-                                    placeholder="Select contract duration"
-                                    buttonClassName="w-full h-[42px] px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm bg-transparent"
-                                />
+                                <label className="block text-sm font-medium text-[#374151] mb-2">Duration (Months)</label>
+                                <select
+                                    name="durationMonths"
+                                    value={formData.durationMonths}
+                                    onChange={handleChange}
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm appearance-none bg-white font-inter"
+                                >
+                                    {[1, 3, 6, 12].map(m => (
+                                        <option key={m} value={m}>{m} Month{m > 1 ? 's' : ''}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     {/* Credits Configuration */}
-                    <div className="mb-[20px]">
-                        <h3 className="text-sm font-semibold text-[#111827] mb-4">Credits Configuration</h3>
+                    <div className="mb-[32px]">
+                        <h3 className="text-sm font-semibold text-[#6B7280] uppercase tracking-wider mb-6">Credits Configuration</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-[#374151] mb-2">Credits Per Month</label>
                                 <input
                                     type="number"
                                     min="0"
-                                    name="credits"
-                                    value={formData.credits}
+                                    name="creditsPerMonth"
+                                    value={formData.creditsPerMonth}
                                     onChange={handleChange}
                                     placeholder="00"
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-[#374151] mb-2">Credits Deducted Per Lead</label>
+                                <label className="block text-sm font-medium text-[#374151] mb-2">Credits Per Lead</label>
                                 <input
                                     type="number"
                                     min="0"
@@ -170,20 +216,19 @@ export default function AddPlan() {
                                     value={formData.creditsPerLead}
                                     onChange={handleChange}
                                     placeholder="00"
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-[#374151] mb-2">Estimated Leads</label>
+                                <label className="block text-sm font-medium text-[#374151] mb-2">Approx Leads Description</label>
                                 <input
-                                    type="number"
-                                    min="0"
-                                    name="estimatedLeads"
-                                    value={formData.estimatedLeads}
+                                    type="text"
+                                    name="approxLeads"
+                                    value={formData.approxLeads}
                                     onChange={handleChange}
-                                    placeholder="00"
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                                    placeholder="e.g. 14 leads or 18-20 leads"
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm"
                                     required
                                 />
                             </div>
@@ -191,41 +236,46 @@ export default function AddPlan() {
                     </div>
 
                     {/* Bonus Leads */}
-                    <div className="mb-[20px]">
-                        <h3 className="text-sm font-semibold text-[#111827] mb-4">Bonus Leads</h3>
-                        <div>
-                            <label className="block text-sm font-medium text-[#374151] mb-2">Bonus Leads</label>
-                            <input
-                                type="number"
-                                min="0"
-                                name="bonusLeads"
-                                value={formData.bonusLeads}
-                                onChange={handleChange}
-                                placeholder="00"
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
-                            />
+                    <div className="mb-[32px]">
+                        <h3 className="text-sm font-semibold text-[#6B7280] uppercase tracking-wider mb-6">Extra Rewards</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-[#374151] mb-2">Bonus Leads</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    name="bonusLeads"
+                                    value={formData.bonusLeads}
+                                    onChange={handleChange}
+                                    placeholder="00"
+                                    className="w-full h-[42px] px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1F6FEB] text-sm"
+                                />
+                            </div>
+                            <div className="flex flex-col justify-end">
+                                <div className="flex items-center gap-3 h-[42px]">
+                                    <label className="text-sm font-medium text-[#111827]">Active Status</label>
+                                    <Toggle checked={formData.isActive} onChange={handleToggle} />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 mb-4">
-                        <label className="text-sm font-medium text-[#111827]">Active</label>
-                        <Toggle checked={formData.active} onChange={handleToggle} />
-                    </div>
-
                     {/* Footer Actions */}
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex justify-end gap-3 pt-6 border-t border-gray-100 mt-8">
                         <button
                             type="button"
                             onClick={() => navigate("/cleaner-subscriptions")}
-                            className="bg-[#F9FAFB] hover:bg-gray-100 text-[#374151] px-6 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                            disabled={loading}
+                            className="bg-white border border-gray-200 hover:bg-gray-50 text-[#374151] px-8 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="bg-[#1F6FEB] hover:bg-[#1B63D6] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                            disabled={loading}
+                            className="bg-[#1F6FEB] hover:bg-[#1B63D6] text-white px-8 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                         >
-                            Add New Plan
+                            {loading ? "Adding..." : "Add New Plan"}
                         </button>
                     </div>
                 </form>
@@ -233,3 +283,4 @@ export default function AddPlan() {
         </div>
     );
 }
+

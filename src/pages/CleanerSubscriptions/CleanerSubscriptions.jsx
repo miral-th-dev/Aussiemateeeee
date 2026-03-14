@@ -1,115 +1,130 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
 import PlanCard from "../../components/cleaner-subscriptions/PlanCard";
 import DeletePlanModal from "../../components/cleaner-subscriptions/DeletePlanModal";
-
-const initialPlans = [
-  {
-    id: "1",
-    name: "Domestic / General Cleaning",
-    price: 300,
-    billingCycle: "month",
-    credits: 400,
-    creditsPerLead: 20,
-    contractDuration: "3 Month",
-    estimatedLeads: 20,
-    subscribers: 124,
-    active: true,
-  },
-  {
-    id: "2",
-    name: "Commercial Cleaning Leads",
-    price: 600,
-    billingCycle: "month",
-    credits: 700,
-    creditsPerLead: 50,
-    contractDuration: "3 Month",
-    estimatedLeads: 14,
-    subscribers: 300,
-    active: true,
-  },
-  {
-    id: "3",
-    name: "Other Service Leads",
-    price: 300,
-    billingCycle: "month",
-    credits: 400,
-    creditsPerLead: 20,
-    contractDuration: "3 Month",
-    estimatedLeads: 20,
-    subscribers: 300,
-    active: true,
-  },
-  {
-    id: "4",
-    name: "Bond / End-of-Lease Cleaning",
-    price: 300,
-    billingCycle: "month",
-    credits: 350,
-    creditsPerLead: 30,
-    contractDuration: "3 Month",
-    estimatedLeads: 12,
-    subscribers: 300,
-    active: true,
-  },
-];
+import { getSubscriptionPlans, updatePlanStatus, deleteSubscriptionPlan } from "../../api/services/subscriptionService";
 
 export default function CleanerSubscriptions() {
-  const [plans, setPlans] = useState(initialPlans);
-  const [planToDelete, setPlanToDelete] = useState(null);
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const [plans, setPlans] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [planToDelete, setPlanToDelete] = useState(null);
 
-  const handleStatusChange = (id, newStatus) => {
-    setPlans(
-      plans.map((plan) =>
-        plan.id === id ? { ...plan, active: newStatus } : plan,
-      ),
+    const fetchPlans = async () => {
+        try {
+            setLoading(true);
+            const response = await getSubscriptionPlans();
+            setPlans(response.data || []);
+        } catch (error) {
+            console.error("Error fetching subscription plans:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPlans();
+    }, []);
+
+    const handleStatusChange = async (planId, isActive) => {
+        try {
+            await updatePlanStatus(planId, isActive);
+            setPlans(prev => prev.map(p => p._id === planId ? { ...p, isActive } : p));
+        } catch (error) {
+            console.error("Error updating plan status:", error);
+        }
+    };
+
+    const handleDeleteClick = (plan) => {
+        setPlanToDelete(plan);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!planToDelete) return;
+        try {
+            await deleteSubscriptionPlan(planToDelete._id);
+            setPlans(prev => prev.filter(p => p._id !== planToDelete._id));
+            setIsDeleteModalOpen(false);
+            setPlanToDelete(null);
+        } catch (error) {
+            console.error("Error deleting subscription plan:", error);
+        }
+    };
+
+    const filteredPlans = plans.filter(plan =>
+        plan.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  };
 
-  const confirmDelete = () => {
-    if (planToDelete) {
-      setPlans(plans.filter((p) => p.id !== planToDelete.id));
-      setPlanToDelete(null);
-    }
-  };
+    return (
+        <div className="max-w-[1200px] mx-auto w-full pb-10 px-4 md:px-0 font-inter">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold text-[#111827]">Subscription Plans</h1>
+                    <p className="text-sm text-[#6B7280] mt-1">Manage and monitor your cleaner subscription packages</p>
+                </div>
+                <button
+                    onClick={() => navigate("/cleaner-subscriptions/add")}
+                    className="flex items-center justify-center gap-2 bg-[#1F6FEB] hover:bg-[#1B63D6] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm shadow-blue-100 cursor-pointer"
+                >
+                    <Plus size={18} />
+                    Add New Plan
+                </button>
+            </div>
 
-  return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-        <h1 className="text-xl font-semibold text-[#1F2937]">
-          Cleaner Subscriptions
-        </h1>
-        <button
-          onClick={() => navigate("/cleaner-subscriptions/add")}
-          className="flex items-center justify-center gap-2 bg-[#1F6FEB] text-white px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-colors hover:bg-[#1B63D6] w-full sm:w-auto"
-        >
-          <div className="bg-white rounded-full p-0.5 text-[#1F6FEB]">
-            <Plus size={14} strokeWidth={3} />
-          </div>
-          Add New Plan
-        </button>
-      </div>
-      <div className="max-w-[1200px] mx-auto w-full">
-        <div className="flex flex-col gap-0">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              onStatusChange={handleStatusChange}
-              onDeleteClick={setPlanToDelete}
+            {/* Search and Filters */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center">
+                <div className="relative w-full md:max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search plans by name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1F6FEB] focus:bg-white text-sm transition-all"
+                    />
+                </div>
+                <div className="flex-1"></div>
+                <div className="text-sm font-medium text-[#4B5675]">
+                    Total Plans: <span className="text-[#111827]">{filteredPlans.length}</span>
+                </div>
+            </div>
+
+            {/* Plans List */}
+            <div className="space-y-4">
+                {loading ? (
+                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+                        <div className="animate-spin w-8 h-8 border-4 border-[#1F6FEB] border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <p className="text-gray-500 font-medium">Loading subscription plans...</p>
+                    </div>
+                ) : filteredPlans.length > 0 ? (
+                    filteredPlans.map(plan => (
+                        <PlanCard
+                            key={plan._id}
+                            plan={plan}
+                            onStatusChange={handleStatusChange}
+                            onDeleteClick={handleDeleteClick}
+                        />
+                    ))
+                ) : (
+                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+                        <p className="text-gray-400 font-medium">No subscription plans found</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Modals */}
+            <DeletePlanModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                planName={planToDelete?.name}
             />
-          ))}
         </div>
-
-        <DeletePlanModal
-          isOpen={!!planToDelete}
-          onClose={() => setPlanToDelete(null)}
-          onConfirm={confirmDelete}
-          planName={planToDelete?.name || ""}
-        />
-      </div>
-    </div>
-  );
+    );
 }
+

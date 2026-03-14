@@ -7,17 +7,11 @@ import Toggle from "../common/Toggle";
 import PaginationRanges from "../common/PaginationRanges";
 import AddCategoryModal from "./AddCategoryModal";
 import DeleteCategoryModal from "./DeleteCategoryModal";
-
-// Dummy data based on screenshot
-const initialCategories = [
-    { id: "1", name: "Domestic / General Cleaning", subCategories: 18, createdDate: "2025-07-12", status: true },
-    { id: "2", name: "Commercial Cleaning", subCategories: 6, createdDate: "2025-08-02", status: true },
-    { id: "3", name: "Other Categories", subCategories: 16, createdDate: "2025-09-01", status: true },
-    { id: "4", name: "Bond / End-of-Lease Cleaning", subCategories: 45, createdDate: "2025-09-01", status: true },
-];
+import { getCategories, updateCategoryStatus, deleteCategory as deleteCategoryApi } from "../../api/services/categoryService";
 
 export default function ServiceCategoriesTable() {
-    const [categories, setCategories] = useState(initialCategories);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectAll, setSelectAll] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
@@ -30,6 +24,32 @@ export default function ServiceCategoriesTable() {
     const navigate = useNavigate();
 
     const menuRef = useRef(null);
+
+    const fetchCategories = async () => {
+        try {
+            setLoading(true);
+            const response = await getCategories();
+            // Map backend fields to frontend fields if necessary
+            const mappedCategories = (response.data || []).map(cat => ({
+                id: cat._id,
+                name: cat.name,
+                subCategories: cat.serviceTypeCount || 0,
+                createdDate: new Date(cat.createdAt).toLocaleDateString(),
+                status: cat.isActive,
+                imageUrl: cat.imageUrl,
+                description: cat.description
+            }));
+            setCategories(mappedCategories);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -58,10 +78,15 @@ export default function ServiceCategoriesTable() {
         }
     };
 
-    const handleStatusToggle = (id, newStatus) => {
-        setCategories(categories.map(cat =>
-            cat.id === id ? { ...cat, status: newStatus } : cat
-        ));
+    const handleStatusToggle = async (id, newStatus) => {
+        try {
+            await updateCategoryStatus(id, newStatus);
+            setCategories(categories.map(cat =>
+                cat.id === id ? { ...cat, status: newStatus } : cat
+            ));
+        } catch (error) {
+            console.error("Error updating category status:", error);
+        }
     };
 
     const toggleActionMenu = (e, id) => {
@@ -69,21 +94,10 @@ export default function ServiceCategoriesTable() {
         setOpenActionMenuId(openActionMenuId === id ? null : id);
     };
 
-    const handleSaveCategory = (newCategoryData) => {
-        if (newCategoryData.id) {
-            setCategories(categories.map(cat => 
-                cat.id === newCategoryData.id ? { ...cat, name: newCategoryData.name, status: newCategoryData.active } : cat
-            ));
-        } else {
-            const newCat = {
-                id: Math.random().toString(36).substr(2, 9),
-                name: newCategoryData.name,
-                subCategories: 0,
-                createdDate: new Date().toISOString().split('T')[0],
-                status: newCategoryData.active
-            };
-            setCategories([...categories, newCat]);
-        }
+    const handleSaveCategory = () => {
+        setIsAddModalOpen(false);
+        setCategoryToEdit(null);
+        fetchCategories();
     };
 
     const handleEditClick = (category) => {
@@ -97,10 +111,15 @@ export default function ServiceCategoriesTable() {
         setOpenActionMenuId(null);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (categoryToDelete) {
-            setCategories(categories.filter(c => c.id !== categoryToDelete.id));
-            setCategoryToDelete(null);
+            try {
+                await deleteCategoryApi(categoryToDelete.id);
+                fetchCategories();
+                setCategoryToDelete(null);
+            } catch (error) {
+                console.error("Error deleting category:", error);
+            }
         }
     };
 
@@ -209,7 +228,7 @@ export default function ServiceCategoriesTable() {
                                             <button 
                                                 className="w-full text-left px-4 py-2 text-sm text-[#4B5675] hover:text-[#1F6FEB] hover:bg-[#F5F8FF] focus:outline-none flex items-center gap-3 transition-colors group cursor-pointer"
                                                 onClick={() => {
-                                                    navigate(`/service-categories/${category.id}`);
+                                                    navigate(`/service-categories/${category.id}`, { state: { categoryName: category.name } });
                                                     setOpenActionMenuId(null);
                                                 }}
                                             >

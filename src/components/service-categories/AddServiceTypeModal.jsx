@@ -1,29 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { X, ChevronDown } from "lucide-react";
+import { useParams } from "react-router-dom";
 import Toggle from "../common/Toggle";
+import { createServiceType, updateServiceType } from "../../api/services/serviceTypeService";
 
 export default function AddServiceTypeModal({ isOpen, onClose, onSave, editData, categoryName }) {
+    const { categoryId } = useParams();
     const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
     const [active, setActive] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const isEdit = !!editData;
 
     useEffect(() => {
         if (editData) {
             setName(editData.name || "");
+            setDescription(editData.description || "");
             setActive(editData.status ?? true);
         } else {
             setName("");
+            setDescription("");
             setActive(true);
         }
     }, [editData, isOpen]);
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSave({ name, active });
-        onClose();
+        setLoading(true);
+        try {
+            const serviceData = {
+                name,
+                description,
+                isActive: active,
+                categoryId: categoryId
+            };
+
+            if (isEdit) {
+                await updateServiceType(editData.id, serviceData);
+            } else {
+                await createServiceType(serviceData);
+            }
+            onSave();
+        } catch (error) {
+            console.error("Error saving service type:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -46,18 +71,12 @@ export default function AddServiceTypeModal({ isOpen, onClose, onSave, editData,
                 <form onSubmit={handleSubmit}>
                     {/* Body */}
                     <div className="px-6 pb-6">
-                        <div className="mb-4 relative">
+                        <div className="mb-4">
                             <label className="block text-sm font-medium text-[#374151] mb-2">
                                 Category
                             </label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={categoryName || "Domestic / General Cleaning"}
-                                    disabled
-                                    className="w-full px-4 py-2.5 border border-gray-100 bg-white rounded-lg text-sm text-[#4B5675] cursor-not-allowed pr-10"
-                                />
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                            <div className="w-full px-4 py-2.5 border border-gray-100 bg-gray-50 rounded-lg text-sm text-[#4B5675] font-medium">
+                                {categoryName || "Category"}
                             </div>
                         </div>
 
@@ -75,6 +94,19 @@ export default function AddServiceTypeModal({ isOpen, onClose, onSave, editData,
                             />
                         </div>
 
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-[#374151] mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Enter service type description"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 text-sm min-h-[100px]"
+                                required
+                            />
+                        </div>
+
                         <div className="flex items-center gap-3">
                             <label className="text-sm font-medium text-[#111827]">
                                 Active
@@ -88,15 +120,17 @@ export default function AddServiceTypeModal({ isOpen, onClose, onSave, editData,
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex py-2.5 px-6 bg-[#F9FAFB] hover:bg-gray-100 text-[#374151] text-sm font-medium rounded-lg cursor-pointer transition-colors"
+                            disabled={loading}
+                            className="flex py-2.5 px-6 bg-[#F9FAFB] hover:bg-gray-100 text-[#374151] text-sm font-medium rounded-lg cursor-pointer transition-colors disabled:opacity-50"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="flex py-2.5 px-6 bg-[#1F6FEB] hover:bg-[#1B63D6] text-white text-sm font-medium rounded-lg cursor-pointer transition-colors"
+                            disabled={loading}
+                            className="flex py-2.5 px-6 bg-[#1F6FEB] hover:bg-[#1B63D6] text-white text-sm font-medium rounded-lg cursor-pointer transition-colors disabled:opacity-50"
                         >
-                            {isEdit ? "Save Changes" : "Add Service"}
+                            {loading ? "Saving..." : (isEdit ? "Save Changes" : "Add Service")}
                         </button>
                     </div>
                 </form>

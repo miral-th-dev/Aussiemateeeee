@@ -1,29 +1,51 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import Toggle from "../common/Toggle";
+import { createCategory, updateCategory } from "../../api/services/categoryService";
 
 export default function AddCategoryModal({ isOpen, onClose, onSave, editData }) {
     const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
     const [active, setActive] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const isEdit = !!editData;
 
     useEffect(() => {
         if (editData) {
             setName(editData.name || "");
+            setDescription(editData.description || "");
             setActive(editData.status ?? true);
         } else {
             setName("");
+            setDescription("");
             setActive(true);
         }
     }, [editData, isOpen]);
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSave({ ...editData, name, active });
-        onClose();
+        setLoading(true);
+        try {
+            const categoryData = {
+                name,
+                description,
+                isActive: active
+            };
+
+            if (isEdit) {
+                await updateCategory(editData.id, categoryData);
+            } else {
+                await createCategory(categoryData);
+            }
+            onSave();
+        } catch (error) {
+            console.error("Error saving category:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -60,6 +82,19 @@ export default function AddCategoryModal({ isOpen, onClose, onSave, editData }) 
                             />
                         </div>
 
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-[#374151] mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Enter category description"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 text-sm min-h-[100px]"
+                                required
+                            />
+                        </div>
+
                         <div className="flex items-center gap-3">
                             <label className="text-sm font-medium text-[#111827]">
                                 Active
@@ -73,15 +108,17 @@ export default function AddCategoryModal({ isOpen, onClose, onSave, editData }) 
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex py-2.5 px-6 bg-[#F9FAFB] hover:bg-gray-100 text-[#374151] text-sm font-medium rounded-lg cursor-pointer"
+                            disabled={loading}
+                            className="flex py-2.5 px-6 bg-[#F9FAFB] hover:bg-gray-100 text-[#374151] text-sm font-medium rounded-lg cursor-pointer disabled:opacity-50"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="flex py-2.5 px-4 bg-[#1F6FEB] text-white text-sm font-medium rounded-lg cursor-pointer transition-colors hover:bg-[#1B63D6]"
+                            disabled={loading}
+                            className="flex py-2.5 px-4 bg-[#1F6FEB] text-white text-sm font-medium rounded-lg cursor-pointer transition-colors hover:bg-[#1B63D6] disabled:opacity-50"
                         >
-                            {isEdit ? "Save Changes" : "Add Category"}
+                            {loading ? "Saving..." : (isEdit ? "Save Changes" : "Add Category")}
                         </button>
                     </div>
                 </form>

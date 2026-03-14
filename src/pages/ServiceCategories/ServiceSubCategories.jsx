@@ -1,33 +1,67 @@
-import { useParams, Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import ServiceSubCategoriesTable from "../../components/service-categories/ServiceSubCategoriesTable";
 import { useBreadcrumb } from "../../context/BreadcrumbContext";
+import { getCategories } from "../../api/services/categoryService";
 
 export default function ServiceSubCategories() {
   const { categoryId } = useParams();
-
-  // In a real app, you would fetch the category name based on categoryId
-  // Dummy mapping for now based on the screenshot setup
-  const getCategoryName = (id) => {
-    switch(id) {
-      case "1": return "Domestic / General Cleaning";
-      case "2": return "Commercial Cleaning";
-      case "3": return "Other Categories";
-      case "4": return "Bond / End-of-Lease Cleaning";
-      default: return "Domestic / General Cleaning";
-    }
-  };
-
-  const categoryName = getCategoryName(categoryId);
+  const location = useLocation();
+  const [categoryName, setCategoryName] = useState(location.state?.categoryName || "");
+  const [loading, setLoading] = useState(!location.state?.categoryName);
   const { setExtraCrumbs } = useBreadcrumb();
 
   useEffect(() => {
-    setExtraCrumbs([
-      { label: categoryName, path: `/service-categories/${categoryId}` }
-    ]);
+    const fetchCategoryDetails = async () => {
+      // If we already have the name from state, no need to fetch
+      if (categoryName && categoryName !== "Category") {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await getCategories();
+        // Check if response has data property (array) or is an array itself
+        const categoriesList = response.data || (Array.isArray(response) ? response : []);
+        const currentCategory = categoriesList.find(cat => cat._id === categoryId);
+        
+        if (currentCategory) {
+          setCategoryName(currentCategory.name);
+        } else {
+          // If not found in the list, we can't do much without the failing API
+          setCategoryName("Category");
+        }
+      } catch (error) {
+        console.error("Error fetching category details:", error);
+        setCategoryName("Category");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (categoryId) {
+      fetchCategoryDetails();
+    }
+  }, [categoryId, categoryName]);
+
+  useEffect(() => {
+    if (categoryName) {
+      setExtraCrumbs([
+        { label: categoryName, path: `/service-categories/${categoryId}` }
+      ]);
+    }
     return () => setExtraCrumbs([]);
   }, [categoryName, categoryId, setExtraCrumbs]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-gray-500 animate-pulse text-sm font-medium">Loading category details...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="">
@@ -45,3 +79,4 @@ export default function ServiceSubCategories() {
     </div>
   );
 }
+

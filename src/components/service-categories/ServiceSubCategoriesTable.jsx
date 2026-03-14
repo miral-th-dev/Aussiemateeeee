@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+import { useParams } from "react-router-dom";
 import editIcon from "../../assets/icon/edit.svg";
 import trashIcon from "../../assets/icon/trash.svg";
 import Checkbox from "../common/Checkbox";
@@ -8,22 +9,12 @@ import Toggle from "../common/Toggle";
 import PaginationRanges from "../common/PaginationRanges";
 import AddServiceTypeModal from "./AddServiceTypeModal";
 import DeleteServiceTypeModal from "./DeleteServiceTypeModal";
-
-const initialServices = [
-    { id: "1", name: "General house cleaning", createdDate: "2025-07-12", status: true },
-    { id: "2", name: "Domestic cleaning", createdDate: "2025-08-02", status: true },
-    { id: "3", name: "Regular house cleaning", createdDate: "2025-09-01", status: true },
-    { id: "4", name: "Weekly cleaning", createdDate: "2025-09-01", status: true },
-    { id: "5", name: "Fortnightly cleaning", createdDate: "2025-09-01", status: true },
-    { id: "6", name: "Monthly cleaning", createdDate: "2025-09-01", status: true },
-    { id: "7", name: "One-off house cleaning", createdDate: "2025-09-01", status: true },
-    { id: "8", name: "Spring cleaning", createdDate: "2025-09-01", status: true },
-    { id: "9", name: "Deep cleaning", createdDate: "2025-09-01", status: true },
-    { id: "10", name: "Apartment / unit cleaning", createdDate: "2025-09-01", status: true },
-];
+import { getServiceTypesByCategory, updateServiceTypeStatus, deleteServiceType as deleteServiceTypeApi } from "../../api/services/serviceTypeService";
 
 export default function ServiceSubCategoriesTable({ categoryName }) {
-    const [services, setServices] = useState(initialServices);
+    const { categoryId } = useParams();
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectAll, setSelectAll] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
@@ -36,6 +27,30 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
 
     // Delete Modal State
     const [serviceToDelete, setServiceToDelete] = useState(null);
+
+    const fetchServiceTypes = async () => {
+        if (!categoryId) return;
+        try {
+            setLoading(true);
+            const response = await getServiceTypesByCategory(categoryId);
+            const mappedServices = (response.data || []).map(srv => ({
+                id: srv._id,
+                name: srv.name,
+                createdDate: new Date(srv.createdAt).toLocaleDateString(),
+                status: srv.isActive,
+                description: srv.description
+            }));
+            setServices(mappedServices);
+        } catch (error) {
+            console.error("Error fetching service types:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchServiceTypes();
+    }, [categoryId]);
 
     const handleSelectAll = (checked) => {
         setSelectAll(checked);
@@ -54,34 +69,32 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
         }
     };
 
-    const handleStatusToggle = (id, newStatus) => {
-        setServices(services.map(srv =>
-            srv.id === id ? { ...srv, status: newStatus } : srv
-        ));
-    };
-
-    const handleSaveService = (serviceData) => {
-        if (serviceToEdit) {
-            // Edit existing
-            setServices(services.map(s => 
-                s.id === serviceToEdit.id ? { ...s, name: serviceData.name, status: serviceData.active } : s
+    const handleStatusToggle = async (id, newStatus) => {
+        try {
+            await updateServiceTypeStatus(id, newStatus);
+            setServices(services.map(srv =>
+                srv.id === id ? { ...srv, status: newStatus } : srv
             ));
-        } else {
-            // Add new
-            const newSrv = {
-                id: Math.random().toString(36).substr(2, 9),
-                name: serviceData.name,
-                createdDate: new Date().toISOString().split('T')[0],
-                status: serviceData.active
-            };
-            setServices([newSrv, ...services]);
+        } catch (error) {
+            console.error("Error updating service type status:", error);
         }
     };
 
-    const confirmDelete = () => {
+    const handleSaveService = () => {
+        setIsAddEditModalOpen(false);
+        setServiceToEdit(null);
+        fetchServiceTypes();
+    };
+
+    const confirmDelete = async () => {
         if (serviceToDelete) {
-            setServices(services.filter(c => c.id !== serviceToDelete.id));
-            setServiceToDelete(null);
+            try {
+                await deleteServiceTypeApi(serviceToDelete.id);
+                fetchServiceTypes();
+                setServiceToDelete(null);
+            } catch (error) {
+                console.error("Error deleting service type:", error);
+            }
         }
     };
 
