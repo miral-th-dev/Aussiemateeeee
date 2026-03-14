@@ -17,6 +17,7 @@ export default function AppLayout() {
     { path: "/cleaners", keywords: ["cleaners", "cleaner"] },
     { path: "/customers", keywords: ["customers", "customer"] },
     { path: "/payments", keywords: ["payments", "escrow", "payment"] },
+    { path: "/service-categories", keywords: ["service", "categories", "category", "services"] },
     { path: "/settings", keywords: ["settings", "profile", "account"] },
   ];
 

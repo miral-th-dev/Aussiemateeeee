@@ -9,7 +9,7 @@ import { fetchJobsStats } from "../../api/services/jobService";
 import { fetchRevenueMTD } from "../../api/services/dashboardService";
 
 const defaultCards = [
-  {
+  { 
     id: 1,
     label: "Pending KYC",
     value: 0,
