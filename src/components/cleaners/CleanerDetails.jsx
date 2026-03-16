@@ -18,7 +18,7 @@ import approvalsBg from "../../assets/image/approvalsBg.svg";
 import OverviewTab from "./OverviewTab";
 import DocumentsTab from "./DocumentsTab";
 import JobHistoryTab from "./JobHistoryTab";
-import EarningsTab from "./EarningsTab";
+import SubscriptionsTab from "./SubscriptionsTab";
 import FeedbackTab from "./FeedbackTab";
 import JobDetails from "../jobs/JobDetails";
 import { fetchCleanerById, fetchCleanersJobsStats, fetchCleanerJobs, fetchCleanerReviews, fetchCleanerKYCById } from "../../api/services/cleanersService";
@@ -380,7 +380,7 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
     { id: "overview", label: "Overview (Default)", shortLabel: "Overview" },
     { id: "documents", label: "Documents & KYC", shortLabel: "Documents" },
     { id: "jobHistory", label: "Job History", shortLabel: "Jobs" },
-    { id: "earnings", label: "Earnings & Payouts", shortLabel: "Earnings" },
+    { id: "subscriptions", label: "Subscriptions", shortLabel: "Subscriptions" },
     { id: "feedback", label: "Feedback & Ratings", shortLabel: "Feedback" },
   ];
 
@@ -583,11 +583,9 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
             }}
           />
         )}
-        {activeTab === "earnings" && (
-          <EarningsTab
-            cleaner={displayCleaner}
-            totalEarnings={totalEarningsFromJobs}
-            jobs={cleanerJobs}
+        {activeTab === "subscriptions" && (
+          <SubscriptionsTab
+            cleanerId={cleanerId}
           />
         )}
         {activeTab === "feedback" && (

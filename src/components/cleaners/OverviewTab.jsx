@@ -25,7 +25,7 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
     return (
         <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center gap-3 shadow-xs">
                     <div className="w-10 h-10 rounded-lg bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
                         <Briefcase size={20} className="text-[#2563EB]" />
@@ -48,7 +48,7 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
                         <p className="text-sm font-medium text-primary-light">Avg Rating</p>
                     </div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center gap-3 shadow-xs">
+                {/* <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center gap-3 shadow-xs">
                     <div className="w-10 h-10 rounded-lg bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
                         <span className="text-[#2563EB] font-bold text-lg">$</span>
                     </div>
@@ -60,7 +60,7 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
                         </p>
                         <p className="text-sm font-medium text-primary-light">Total Earnings</p>
                     </div>
-                </div>
+                </div> */}
             </div>
 
             {/* Recent Jobs Section */}
