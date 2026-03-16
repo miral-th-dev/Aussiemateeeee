@@ -124,8 +124,8 @@ export default function ServiceCategoriesTable() {
     };
 
     return (
-        <div className="bg-white rounded-[16px] border border-gray-200 shadow-sm relative pb-4">
-            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <div className="bg-white rounded-[16px] border border-[#F1F1F4] shadow-xs relative pb-4">
+            <div className="p-4 border-b border-[#F1F1F4] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
                 <SearchInput
                     placeholder="Search by Category Name"
                     value={searchQuery}
@@ -148,9 +148,9 @@ export default function ServiceCategoriesTable() {
 
             <div className="overflow-x-auto min-h-[300px]">
                 <table className="w-full border-collapse min-w-[700px]">
-                    <thead className="border-b border-gray-200">
+                    <thead className="border-b border-[#F1F1F4]">
                         <tr>
-                            <th className="w-16 px-4 py-4 text-left">
+                            <th className="w-16 px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center justify-center">
                                     <Checkbox
                                         checked={selectAll}
@@ -158,25 +158,25 @@ export default function ServiceCategoriesTable() {
                                     />
                                 </div>
                             </th>
-                            <th className="min-w-[200px] px-4 py-4 text-left">
+                            <th className="min-w-[200px] px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Category Name</span>
                                     
                                 </div>
                             </th>
-                            <th className="px-4 py-4 text-left">
+                            <th className="px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Sub Categories</span>
                                     
                                 </div>
                             </th>
-                            <th className="px-4 py-4 text-left">
+                            <th className="px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Created Date</span>
                                     
                                 </div>
                             </th>
-                            <th className="px-4 py-4 text-left">
+                            <th className="px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Category Status</span>
                                     
@@ -187,8 +187,8 @@ export default function ServiceCategoriesTable() {
                     </thead>
                     <tbody>
                         {categories.map((category) => (
-                            <tr key={category.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors relative">
-                                <td className="w-16 px-4 py-4">
+                            <tr key={category.id} className="border-b border-[#F1F1F4] hover:bg-gray-50 transition-colors relative">
+                                <td className="w-16 px-4 py-4 border-r border-[#F1F1F4]">
                                     <div className="flex items-center justify-center">
                                         <Checkbox
                                             checked={selectedRows.includes(category.id)}
@@ -196,16 +196,16 @@ export default function ServiceCategoriesTable() {
                                         />
                                     </div>
                                 </td>
-                                <td className="px-4 py-4 text-sm font-medium text-[#111827]">
+                                <td className="px-4 py-4 text-sm font-medium text-[#111827] border-r border-[#F1F1F4]">
                                     {category.name}
                                 </td>
-                                <td className="px-4 py-4 text-sm text-[#374151]">
+                                <td className="px-4 py-4 text-sm text-[#374151] border-r border-[#F1F1F4]">
                                     {category.subCategories}
                                 </td>
-                                <td className="px-4 py-4 text-sm text-[#374151]">
+                                <td className="px-4 py-4 text-sm text-[#374151] border-r border-[#F1F1F4]">
                                     {category.createdDate}
                                 </td>
-                                <td className="px-4 py-4">
+                                <td className="px-4 py-4 border-r border-[#F1F1F4]">
                                     <Toggle
                                         checked={category.status}
                                         onChange={(checked) => handleStatusToggle(category.id, checked)}
@@ -222,7 +222,7 @@ export default function ServiceCategoriesTable() {
                                     {openActionMenuId === category.id && (
                                         <div
                                             ref={menuRef}
-                                            className="absolute right-12 top-10 w-48 bg-white border border-gray-100 shadow-lg rounded-xl z-50 py-2"
+                                            className="absolute right-12 top-10 w-48 bg-white border border-[#F1F1F4] shadow-lg rounded-xl z-50 py-2"
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <button 

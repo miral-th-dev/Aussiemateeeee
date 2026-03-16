@@ -40,7 +40,7 @@ export default function FeedbackTab({ jobDetails, renderStars }) {
     const reviewData = review || (jobDetails.feedback?.rating > 0 ? jobDetails.feedback : null);
 
     return (
-        <div className="bg-white rounded-xl border border-[#EEF0F5] shadow-sm">
+        <div className="bg-white rounded-xl border border-[#EEF0F5] shadow-xs">
             <div className="flex items-center justify-between border-b border-[#F1F1F4] px-4 sm:px-5 md:px-6 lg:px-4 xl:px-7 py-2 sm:py-3">
                 <h2 className="text-base sm:text-lg md:text-xl font-semibold text-primary">Feedback</h2>
                 {/* <button className="flex items-center gap-1 text-[10px] sm:text-xs text-blue-600 cursor-pointer flex-shrink-0 whitespace-nowrap">

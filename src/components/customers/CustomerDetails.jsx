@@ -133,7 +133,7 @@ export default function CustomerDetails({ customer, onBackToList, onJobViewDetai
   const tabs = [
     { id: "overview", label: "Overview (Default)", shortLabel: "Overview" },
     { id: "jobsHistory", label: "Jobs History", shortLabel: "Jobs" },
-    { id: "payments", label: "Payments & Escrow", shortLabel: "Payments" },
+    // { id: "payments", label: "Payments & Escrow", shortLabel: "Payments" },
     { id: "feedback", label: "Feedback", shortLabel: "Feedback" },
   ];
 

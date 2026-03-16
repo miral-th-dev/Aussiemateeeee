@@ -1,7 +1,7 @@
 import client from "../clients";
 
 export const getSubscriptionPlans = async () => {
-    const response = await client.get("/subscriptions/plans");
+    const response = await client.get("/subscriptions/admin/plans");
     return response.data;
 };
 

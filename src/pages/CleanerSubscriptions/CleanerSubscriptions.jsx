@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PlanCard from "../../components/cleaner-subscriptions/PlanCard";
 import DeletePlanModal from "../../components/cleaner-subscriptions/DeletePlanModal";
@@ -64,34 +64,15 @@ export default function CleanerSubscriptions() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-[#111827]">Subscription Plans</h1>
-                    <p className="text-sm text-[#6B7280] mt-1">Manage and monitor your cleaner subscription packages</p>
+                    <h1 className="text-[16px] font-semibold text-[#111827]">Cleaner Subscriptions</h1>
                 </div>
                 <button
                     onClick={() => navigate("/cleaner-subscriptions/add")}
-                    className="flex items-center justify-center gap-2 bg-[#1F6FEB] hover:bg-[#1B63D6] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm shadow-blue-100 cursor-pointer"
+                    className="flex items-center justify-center gap-2 bg-[#1F6FEB]  text-white px-5 py-2.5 rounded-xl text-sm font-semibold  cursor-pointer"
                 >
-                    <Plus size={18} />
+                    <Plus size={9} className="text-[#1F6FEB] bg-white rounded-full w-4 h-4" />
                     Add New Plan
                 </button>
-            </div>
-
-            {/* Search and Filters */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center">
-                <div className="relative w-full md:max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search plans by name..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1F6FEB] focus:bg-white text-sm transition-all"
-                    />
-                </div>
-                <div className="flex-1"></div>
-                <div className="text-sm font-medium text-[#4B5675]">
-                    Total Plans: <span className="text-[#111827]">{filteredPlans.length}</span>
-                </div>
             </div>
 
             {/* Plans List */}

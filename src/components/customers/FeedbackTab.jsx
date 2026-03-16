@@ -325,7 +325,7 @@ export default function FeedbackTab({ customer, reviews = [], pagination }) {
       </div>
 
       {/* MatePoints table */}
-      <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm" ref={matePointsRef}>
+      {/* <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm" ref={matePointsRef}>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-7.5 py-4 border-b border-[#EEF0F5]">
           <h3 className="text-base font-medium text-primary">MatePoints</h3>
           <button
@@ -359,7 +359,7 @@ export default function FeedbackTab({ customer, reviews = [], pagination }) {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

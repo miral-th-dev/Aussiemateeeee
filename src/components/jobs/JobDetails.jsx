@@ -453,11 +453,11 @@ export default function JobDetails({ job, onBackToList, onPaymentStatusUpdate })
 
                         {/* Header Card */}
                         <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between rounded-[12px] 
-                        p-4 sm:p-5 md:p-6 lg:p-[30px] border border-[#F1F1F4] bg-white shadow-sm gap-4 md:gap-0">
+                        p-4 sm:p-5 md:p-6 lg:p-[30px] border border-[#F1F1F4] bg-white shadow-xs gap-4 md:gap-0">
 
                             {/* Left Section */}
                             <div className="w-full">
-                                <p className="text-xs font-medium text-primary-light">Posted by</p>
+                                {/* <p className="text-xs font-medium text-primary-light">Posted by</p> */}
 
                                 <div className="flex flex-wrap items-center gap-3">
                                     <span className="font-semibold text-xl sm:text-2xl text-primary">
@@ -503,7 +503,7 @@ export default function JobDetails({ job, onBackToList, onPaymentStatusUpdate })
                         <FeedbackTab jobDetails={jobDetails} renderStars={renderStars} />
 
                         {/* Attachments */}
-                        <AttachmentsTab jobDetails={jobDetails} />
+                        {/* <AttachmentsTab jobDetails={jobDetails} /> */}
 
                     </div>
                 </div>

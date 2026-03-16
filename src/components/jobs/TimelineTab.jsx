@@ -2,7 +2,7 @@ import { Clock } from "lucide-react";
 
 export default function TimelineTab({ jobDetails, highlightUserNames }) {
     return (
-        <div className="bg-white rounded-xl border border-[#EEF0F5] shadow-sm p-4 sm:p-5 md:p-6 lg:p-4 xl:p-7">
+        <div className="bg-white rounded-xl border border-[#EEF0F5] shadow-xs p-4 sm:p-5 md:p-6 lg:p-4 xl:p-7">
             <div className="space-y-4 sm:space-y-5 md:space-y-6">
                 {jobDetails.timeline.map((item, index) => {
                     const eventParts = highlightUserNames(item.event);

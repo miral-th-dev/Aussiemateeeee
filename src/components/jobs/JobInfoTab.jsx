@@ -2,12 +2,12 @@ import { Footprints } from "lucide-react";
 
 export default function JobInfoTab({ jobDetails }) {
     return (
-        <div className="bg-white rounded-xl border border-[#EEF0F5] shadow-sm">
+        <div className="bg-white rounded-xl border border-[#EEF0F5] shadow-xs">
             <h2 className="font-semibold text-sm sm:text-base text-primary px-4 sm:px-5 md:px-6 lg:px-7 py-3 sm:py-4 border-b border-[#F1F1F4]">Job Info</h2>
 
             <div className="space-y-3 px-4 sm:px-5 md:px-6 lg:px-7 py-3 sm:py-4">
                 <div>
-                    <p className="text-sm sm:text-base text-primary font-medium capitalize">
+                    <p className="text-sm sm:text-base text-[#78829D] font-medium capitalize">
                         {[
                             jobDetails.jobInfo.category,
                             jobDetails.jobInfo.petType,
@@ -15,7 +15,7 @@ export default function JobInfoTab({ jobDetails }) {
                         ].filter(Boolean).join(" • ")}
                     </p>
                     {jobDetails.jobInfo.numberOfPets > 0 && (
-                        <p className="text-xs sm:text-sm text-primary-light font-medium">
+                        <p className="text-xs sm:text-sm text-[#78829D] font-medium">
                             Number of pets: {jobDetails.jobInfo.numberOfPets}
                         </p>
                     )}

@@ -765,21 +765,21 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
                                         Job Status
                                     </span>
                                 </th>
-                                <th className="min-w-[130px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
+                                {/* <th className="min-w-[130px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                                         Payment Status
                                     </span>
-                                </th>
+                                </th> */}
                                 <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                                         Date
                                     </span>
                                 </th>
-                                <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
+                                {/* <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                                         Amount Paid
                                     </span>
-                                </th>
+                                </th> */}
                                 <th className="w-16 md:w-20 px-2 md:px-4 py-2 md:py-3 text-center">
                                 </th>
                             </tr>
@@ -855,23 +855,23 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
                                                 size="sm"
                                             />
                                         </td>
-                                        <td className="min-w-[130px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
+                                        {/* <td className="min-w-[130px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
                                             <StatusBadge
                                                 status={job.paymentStatus}
                                                 statusType="paymentStatus"
                                                 size="sm"
                                             />
-                                        </td>
+                                        </td> */}
                                         <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 text-primary font-medium border-r border-gray-200 text-xs md:text-sm">
                                             {job.date}
                                         </td>
-                                        <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 text-primary font-medium border-r border-gray-200 text-xs md:text-sm">
+                                        {/* <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 text-primary font-medium border-r border-gray-200 text-xs md:text-sm">
                                             {job.amountPaid !== null ? (
                                                 <span>AU${job.amountPaid.toLocaleString()}</span>
                                             ) : (
                                                 <span className="text-gray-400">-</span>
                                             )}
-                                        </td>
+                                        </td> */}
                                         <td className="w-16 md:w-20 px-2 md:px-4 py-2 md:py-4 text-center">
                                             <button
                                                 type="button"

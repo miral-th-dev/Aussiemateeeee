@@ -109,8 +109,8 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
     };
 
     return (
-        <div className="bg-white rounded-[16px] border border-gray-200 shadow-sm relative pb-4 mt-6">
-            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <div className="bg-white rounded-[16px] border border-[#F1F1F4] shadow-xs relative pb-4 mt-6">
+            <div className="p-4 border-b border-[#F1F1F4] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
                 <SearchInput
                     placeholder="Search by Category Name"
                     value={searchQuery}
@@ -130,29 +130,29 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
 
             <div className="overflow-x-auto min-h-[300px]">
                 <table className="w-full border-collapse min-w-[700px]">
-                    <thead className="border-b border-gray-200">
+                    <thead className="border-b border-[#F1F1F4]">
                         <tr>
-                            <th className="w-16 px-4 py-4 text-left">
-                                <div className="flex items-center justify-center">
+                            <th className="w-16 px-4 py-4 text-left border-r border-[#F1F1F4]">
+                                <div className="flex items-center justify-center ">
                                     <Checkbox
                                         checked={selectAll}
                                         onChange={(e) => handleSelectAll(e.target.checked)}
                                     />
                                 </div>
                             </th>
-                            <th className="min-w-[200px] px-4 py-4 text-left">
+                            <th className="min-w-[200px] px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Service Name</span>
                                     
                                 </div>
                             </th>
-                            <th className="px-4 py-4 text-left">
+                            <th className="px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Category Status</span>
                                     
                                 </div>
                             </th>
-                            <th className="px-4 py-4 text-left">
+                            <th className="px-4 py-4 text-left border-r border-[#F1F1F4]">
                                 <div className="flex items-center gap-2 cursor-pointer">
                                     <span className="font-medium text-[#78829D] text-xs">Created Date</span>
                                     
@@ -164,7 +164,7 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
                     <tbody>
                         {services.map((service) => (
                             <tr key={service.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors relative">
-                                <td className="w-16 px-4 py-4">
+                                <td className="w-16 px-4 py-4 border-r border-[#F1F1F4]">
                                     <div className="flex items-center justify-center">
                                         <Checkbox
                                             checked={selectedRows.includes(service.id)}
@@ -172,16 +172,16 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
                                         />
                                     </div>
                                 </td>
-                                <td className="px-4 py-4 text-sm font-medium text-[#111827]">
+                                <td className="px-4 py-4 text-sm font-medium text-[#111827] border-r border-[#F1F1F4]">
                                     {service.name}
                                 </td>
-                                <td className="px-4 py-4">
+                                <td className="px-4 py-4 border-r border-[#F1F1F4]">
                                     <Toggle
                                         checked={service.status}
                                         onChange={(checked) => handleStatusToggle(service.id, checked)}
                                     />
                                 </td>
-                                <td className="px-4 py-4 text-sm text-[#374151]">
+                                <td className="px-4 py-4 text-sm text-[#374151] border-r border-[#F1F1F4]">
                                     {service.createdDate}
                                 </td>
                                 <td className="px-4 py-4 text-center">
