@@ -135,6 +135,40 @@ export default function DocumentsTab({ cleaner }) {
                     status: "Not Uploaded",
                 });
             }
+
+            // Visa/Work Rights
+            if (docsObj.visaWorkRights) {
+                const visaRights = docsObj.visaWorkRights;
+                const isImage =
+                    visaRights.fileType?.startsWith("image/") ||
+                    visaRights.fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                docs.push({
+                    id: docId++,
+                    label: "Visa/Work Rights",
+                    value: visaRights.fileName || visaRights.url || "",
+                    type: isImage ? "image" : "file",
+                    status:
+                        visaRights.status === "pending_review"
+                            ? "Pending"
+                            : visaRights.status === "approved"
+                                ? "Approved"
+                                : visaRights.status === "rejected"
+                                    ? "Rejected"
+                                    : "Pending",
+                    url: visaRights.url,
+                    fileName: visaRights.fileName,
+                    fileType: visaRights.fileType,
+                    originalStatus: visaRights.status,
+                });
+            } else {
+                docs.push({
+                    id: docId++,
+                    label: "Visa/Work Rights",
+                    value: null,
+                    type: "file",
+                    status: "Not Uploaded",
+                });
+            }
         }
 
         return docs;
@@ -245,12 +279,12 @@ export default function DocumentsTab({ cleaner }) {
                                         <div className="flex items-center gap-2 text-xs">
                                             <Checkbox
                                                 checked={doc.status === "Verified" || doc.abnVerified === true}
-                                                onChange={() => {}}
+                                                onChange={() => { }}
                                                 disabled={true}
                                                 checkboxSize="w-4 h-4"
                                                 className="items-center"
                                             />
-                                           Verified
+                                            Verified
                                         </div>
                                     </div>
                                 )}

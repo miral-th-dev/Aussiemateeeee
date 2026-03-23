@@ -179,6 +179,34 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
           status: "Not Uploaded",
         });
       }
+
+      // Visa/Work Rights
+      if (docsObj.visaWorkRights) {
+        const visaRights = docsObj.visaWorkRights;
+        const isImage = visaRights.fileType?.startsWith('image/') ||
+          visaRights.fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+        docs.push({
+          id: docId++,
+          label: "Visa/Work Rights",
+          value: visaRights.fileName || visaRights.url || "",
+          type: isImage ? "image" : "file",
+          status: visaRights.status === "pending_review" ? "Pending" :
+            visaRights.status === "approved" ? "Approved" :
+              visaRights.status === "rejected" ? "Rejected" : "Pending",
+          url: visaRights.url,
+          fileName: visaRights.fileName,
+          fileType: visaRights.fileType,
+          originalStatus: visaRights.status,
+        });
+      } else {
+        docs.push({
+          id: docId++,
+          label: "Visa/Work Rights",
+          value: null,
+          type: "file",
+          status: "Not Uploaded",
+        });
+      }
     }
 
     return docs;
@@ -425,7 +453,9 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
                   ? "photoId"
                   : d.label === "Training Certificates"
                     ? "trainingCertificates"
-                    : null;
+                    : d.label === "Visa/Work Rights"
+                      ? "visaWorkRights"
+                      : null;
             if (!key) return d;
             const s = updatedDocs?.[key]?.status;
             if (!s) return d;
@@ -471,6 +501,7 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
       "Police Check": "policeCheck",
       "Photo ID": "photoId",
       "Training Certificates": "trainingCertificates",
+      "Visa/Work Rights": "visaWorkRights",
     };
     const documentKey = docKeyMap[doc.label];
     if (!documentKey) return;

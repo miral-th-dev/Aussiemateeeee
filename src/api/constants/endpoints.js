@@ -19,4 +19,6 @@ export const ENDPOINTS = {
   REVIEWS: '/reviews',
   ADMIN_USERS: '/admin/users',
   REVENUE_MTD: '/revenue/mtd',
+  SUBSCRIPTION_REPORT: '/admin/subscriptions/report',
+  CLEANER_PAYMENTS: '/admin/cleaners',
 };

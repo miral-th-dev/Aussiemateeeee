@@ -289,3 +289,9 @@ export const verifyCleanerAbn = async (cleanerId, verified) => {
     () => client.put(url).then((r) => r.data),
   ]);
 };
+
+export const fetchCleanerPayments = async (cleanerId) => {
+  if (!cleanerId) throw new Error("cleanerId is required");
+  const response = await client.get(`${ENDPOINTS.CLEANER_PAYMENTS}/${encodeURIComponent(cleanerId)}/payments`);
+  return response.data;
+};

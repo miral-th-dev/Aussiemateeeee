@@ -24,3 +24,8 @@ export const updatePlanStatus = async (planId, isActive) => {
     const response = await client.put(`/subscriptions/plans/${planId}`, { isActive });
     return response.data;
 };
+
+export const getCleanerSubscriptionsReport = async () => {
+  const response = await client.get("/admin/subscriptions/report");
+  return response.data;
+};
