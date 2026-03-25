@@ -60,7 +60,7 @@ export default function ApprovalsTable({ onViewCleaner }) {
     // Status filter options (for dropdown)
     // Note: current data only uses "Pending" and "Verified".
     // "Approved", "Rejected", and "Expired" are included for future use.
-    const statusOptions = ["Pending", "Rejected", "Expired", "Verified"];
+    const statusOptions = ["Pending", "Rejected", "Verified"];
 
     const getUiStatus = (row) => {
         // backend fields observed: approvalStatus, verificationStatus
@@ -109,11 +109,10 @@ export default function ApprovalsTable({ onViewCleaner }) {
         // Map UI labels to backend approvalStatus values
         // Backend uses "no_documents" for pending states (partial also exists but we'll filter client-side)
         const statusMap = {
-            Pending: 'no_documents', // Send primary pending status, filter 'partial' client-side
-            Verified: 'approved',
-            Approved: 'approved',
+            Pending: 'pending',
+            Verified: 'verified',
+            Approved: 'verified',
             Rejected: 'rejected',
-            Expired: 'expired',
         };
         return statusMap[uiStatus] || '';
     };
@@ -136,8 +135,7 @@ export default function ApprovalsTable({ onViewCleaner }) {
             setLoading(true);
             setError(null);
             try {
-                // For Pending, don't send status filter (we'll filter client-side for both no_documents and partial)
-                const apiStatus = statusFilter === 'Pending' ? '' : mapStatusToAPI(statusFilter);
+                const apiStatus = mapStatusToAPI(statusFilter);
 
                 // For client-side filtering (any status filter or date), fetch all records
                 // This ensures pagination is consistent (page 1 fills first, then page 2, etc.)
