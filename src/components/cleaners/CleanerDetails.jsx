@@ -369,6 +369,17 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
     // 3. Fallback to extracting from fullAddress if possible, or just the fullAddress
     const full = kyc.location?.fullAddress || kyc.fullAddress || d.location?.fullAddress || d.fullAddress || d.address?.fullAddress;
     if (full) {
+      const parts = full.split(',').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 3) {
+        // e.g., ["...", "Surat", "Gujarat 394105", "India"]
+        const cityPart = parts[parts.length - 3];
+        let statePart = parts[parts.length - 2];
+        statePart = statePart.replace(/[0-9]/g, '').trim(); // Remove postal codes
+        return `${cityPart}, ${statePart}`;
+      } else if (parts.length === 2) {
+        let statePart = parts[0].replace(/[0-9]/g, '').trim();
+        return statePart || full;
+      }
       return full;
     }
 
@@ -453,11 +464,11 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
               <h2 className="text-base md:text-lg font-semibold text-primary">
                 {displayCleaner.name}
               </h2>
-              {displayCleaner.role && (
+              {/* {displayCleaner.role && (
                 <span className="text-xs md:text-sm text-[#9CA3AF]">
                   • {displayCleaner.role}
                 </span>
-              )}
+              )} */}
             </div>
 
             {/* Joined date, jobs completed, location */}
@@ -475,20 +486,10 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
                 <span>Joined: {displayCleaner.joined || "N/A"}</span>
               </span>
             </div>
-          </div>
-
-          {/* Earnings Box */}
-          <div className="mt-4 px-3 md:px-4 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md">
-            <span className="text-xs md:text-sm font-medium">
-              <span className="text-primary">Earnings</span>{" "}
-              <span className="text-primary-light font-semibold">
-                AU${(totalEarningsFromJobs ?? displayCleaner.earnings ?? 0).toLocaleString()}
-              </span>
-            </span>
-          </div>
+          </div>          
 
           {/* Rating & Tier */}
-          <div className="flex items-center justify-center gap-2 md:gap-3 mt-4">
+          <div className="flex items-center justify-center gap-2 md:gap-3">
             <span className="inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-medium bg-[#FFF4E0] border border-[#F6B10033] text-[#F6B100]">
               <Star size={12} className="md:w-[12px] md:h-[12px] text-[#F6B100] fill-[#F59E0B]" />
               <span className="text-sm">

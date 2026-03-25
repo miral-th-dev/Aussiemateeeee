@@ -47,16 +47,25 @@ export default function ActionModal({
   hideFooter = false,
   className = "",
 }) {
-  // Close on ESC
+  // Close on ESC and Lock Scroll
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
+      if (isOpen && e.key === "Escape") {
         onClose?.();
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;

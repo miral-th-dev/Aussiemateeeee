@@ -357,13 +357,6 @@ export default function JobHistoryTab({ cleaner, onViewJob }) {
                                     </div>
                                 </th>
 
-                                {/* Amount */}
-                                <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200 cursor-pointer hover:bg-gray-100" onClick={() => handleSort("amount")}>
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-medium text-gray-700 text-xs md:text-sm">Amount</span>
-                                        {getSortIcon("amount")}
-                                    </div>
-                                </th>
                                 <th className="min-w-[120px] md:min-w-[140px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                                         Status
@@ -417,9 +410,7 @@ export default function JobHistoryTab({ cleaner, onViewJob }) {
                                                 {job.joined}
                                             </td>
 
-                                            <td className="px-2 md:px-4 py-2 md:py-4 border-r border-gray-200 font-medium text-primary text-xs md:text-sm">
-                                                AU${Number(job.amount || 0).toLocaleString()}
-                                            </td>
+                                            
                                             <td className="min-w-[120px] md:min-w-[140px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
                                                 <StatusBadge
                                                     status={job.status}

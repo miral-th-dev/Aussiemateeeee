@@ -14,11 +14,66 @@ const CustomSelect = ({
   showSelectedHeader = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState({});
+  const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Calculate fixed position when opening
+  const handleToggle = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUpward = spaceBelow < 260;
+
+      if (openUpward) {
+        setDropdownStyle({
+          position: 'fixed',
+          bottom: window.innerHeight - rect.top + 6,
+          left: rect.left,
+          minWidth: rect.width,
+          zIndex: 20,
+        });
+      } else {
+        setDropdownStyle({
+          position: 'fixed',
+          top: rect.bottom + 6,
+          left: rect.left,
+          minWidth: rect.width,
+          zIndex: 20,
+        });
+      }
+    }
+    setIsOpen((prev) => !prev);
+  };
+
+  // Reposition if window resizes or scrolls while open
+  useEffect(() => {
+    if (!isOpen) return;
+    const update = () => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setDropdownStyle((prev) => ({
+          ...prev,
+          top: rect.bottom + 6,
+          left: rect.left,
+          minWidth: rect.width,
+        }));
+      }
+    };
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        buttonRef.current && !buttonRef.current.contains(event.target) &&
+        dropdownRef.current && !dropdownRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -33,7 +88,7 @@ const CustomSelect = ({
   }, [isOpen]);
 
   // Normalize options - handle both string arrays and object arrays
-  const normalizedOptions = options.map((opt) => 
+  const normalizedOptions = options.map((opt) =>
     typeof opt === 'string' ? { value: opt, label: opt } : opt
   );
 
@@ -45,10 +100,11 @@ const CustomSelect = ({
   };
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative ${className}`}>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={handleToggle}
         className={`w-full flex items-center justify-between rounded-lg px-4 py-1.5 text-sm focus:border-[#2563EB] focus:outline-none cursor-pointer gap-2 ${
           value ? "bg-[#EFF6FF] border border-[#1B84FF33]" : "bg-white border border-gray-300"
         } ${buttonClassName}`}
@@ -66,7 +122,11 @@ const CustomSelect = ({
       </button>
 
       {isOpen && (
-        <div className={`absolute z-50 mt-2 min-w-full w-max rounded-xl border border-[#E5E7EB] bg-white shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}>
+        <div
+          ref={dropdownRef}
+          style={dropdownStyle}
+          className={`w-max rounded-xl border border-[#E5E7EB] bg-white shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}
+        >
           {showSelectedHeader && selectedOption && (
             <div className="flex items-center justify-between px-4 py-2 bg-[#EBF2FD] text-[#2563EB] font-semibold border-b border-[#E5E7EB]">
               <span className="whitespace-nowrap">{selectedOption.label}</span>

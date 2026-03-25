@@ -10,6 +10,7 @@ export default function Settings() {
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [fileError, setFileError] = useState(null);
   const fileInputRef = useRef(null);
 
   // Load user data on mount
@@ -40,14 +41,15 @@ export default function Settings() {
 
     const validTypes = ["image/jpeg", "image/jpg", "image/gif", "image/png"];
     if (!validTypes.includes(file.type)) {
-      alert("Please upload a valid JPG, GIF or PNG file");
+      setFileError("Please upload a valid JPG, GIF or PNG file");
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      alert("File size must be less than 2MB");
+      setFileError("File size must be less than 2MB");
       return;
     }
 
+    setFileError(null);
     setProfileImage(file);
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result);
@@ -177,8 +179,8 @@ export default function Settings() {
                 </Button>
               </div>
 
-              <p className="text-xs sm:text-sm md:text-[16px] font-medium text-gray-500 text-center md:text-left">
-                Allowed JPG, GIF or PNG. Max size of 2MB
+              <p className={`text-xs sm:text-sm md:text-[16px] font-medium text-center md:text-left ${fileError ? 'text-red-500' : 'text-gray-500'}`}>
+                {fileError || "Allowed JPG, GIF or PNG. Max size of 2MB"}
               </p>
             </div>
           </div>

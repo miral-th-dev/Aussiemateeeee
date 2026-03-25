@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { X, User } from "lucide-react";
 import Button from "./Button";
 
@@ -18,6 +18,27 @@ export default function ReleaseFundsModal({
   onConfirm,
   jobDetails,
 }) {
+  // Close on ESC key and Lock Scroll
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    const handleKeyDown = (e) => {
+      if (isOpen && e.key === "Escape") {
+        onClose?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const payment = jobDetails?.payment || {};

@@ -2,16 +2,25 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 
 export default function InvoiceModal({ isOpen, onClose, invoice }) {
-    // Close on ESC key
+    // Close on ESC key and Lock Scroll
     useEffect(() => {
-        if (!isOpen) return;
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "unset";
+        }
+
         const handleKeyDown = (e) => {
-            if (e.key === "Escape") {
+            if (isOpen && e.key === "Escape") {
                 onClose?.();
             }
         };
+
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = "unset";
+        };
     }, [isOpen, onClose]);
 
     if (!isOpen || !invoice) return null;

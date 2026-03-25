@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus} from "lucide-react";
+import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PlanCard from "../../components/cleaner-subscriptions/PlanCard";
 import DeletePlanModal from "../../components/cleaner-subscriptions/DeletePlanModal";
@@ -60,7 +60,7 @@ export default function CleanerSubscriptions() {
     );
 
     return (
-        <div className="max-w-[1200px] mx-auto w-full pb-10 px-4 md:px-0 font-inter">
+        <>
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
@@ -74,38 +74,40 @@ export default function CleanerSubscriptions() {
                     Add New Plan
                 </button>
             </div>
+            <div className="max-w-[1200px] mx-auto w-full pb-10 px-4 md:px-0 font-inter">
 
-            {/* Plans List */}
-            <div className="space-y-4">
-                {loading ? (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-                        <div className="animate-spin w-8 h-8 border-4 border-[#1F6FEB] border-t-transparent rounded-full mx-auto mb-4"></div>
-                        <p className="text-gray-500 font-medium">Loading subscription plans...</p>
-                    </div>
-                ) : filteredPlans.length > 0 ? (
-                    filteredPlans.map(plan => (
-                        <PlanCard
-                            key={plan._id}
-                            plan={plan}
-                            onStatusChange={handleStatusChange}
-                            onDeleteClick={handleDeleteClick}
-                        />
-                    ))
-                ) : (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-                        <p className="text-gray-400 font-medium">No subscription plans found</p>
-                    </div>
-                )}
+                {/* Plans List */}
+                <div className="space-y-4">
+                    {loading ? (
+                        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+                            <div className="animate-spin w-8 h-8 border-4 border-[#1F6FEB] border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p className="text-gray-500 font-medium">Loading subscription plans...</p>
+                        </div>
+                    ) : filteredPlans.length > 0 ? (
+                        filteredPlans.map(plan => (
+                            <PlanCard
+                                key={plan._id}
+                                plan={plan}
+                                onStatusChange={handleStatusChange}
+                                onDeleteClick={handleDeleteClick}
+                            />
+                        ))
+                    ) : (
+                        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+                            <p className="text-gray-400 font-medium">No subscription plans found</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Modals */}
+                <DeletePlanModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleDeleteConfirm}
+                    planName={planToDelete?.name}
+                />
             </div>
-
-            {/* Modals */}
-            <DeletePlanModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={handleDeleteConfirm}
-                planName={planToDelete?.name}
-            />
-        </div>
+        </>
     );
 }
 

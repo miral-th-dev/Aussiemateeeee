@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getCleanerSubscriptionsReport } from "../../api/services/subscriptionService";
 import { fetchCleanerPayments } from "../../api/services/cleanersService";
+import PaginationRanges from "../common/PaginationRanges";
 
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
@@ -29,6 +30,9 @@ const SubscriptionsTab = ({ cleanerId }) => {
   const [loading, setLoading] = useState(true);
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,6 +97,10 @@ const SubscriptionsTab = ({ cleanerId }) => {
     }
   }, [cleanerId]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 text-[#6B7280]">
@@ -116,6 +124,11 @@ const SubscriptionsTab = ({ cleanerId }) => {
     item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.transactionId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item._id?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const paginatedPaymentHistory = filteredPaymentHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   return (
@@ -194,14 +207,13 @@ const SubscriptionsTab = ({ cleanerId }) => {
                     className="h-full bg-[#10B981] rounded-full"
                     style={{
                       width: `${subscriptionData.usagePercent}%`,
-                      backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)',
+                      backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent )',
                       backgroundSize: '1rem 1rem'
                     }}
                   ></div>
                   {/* Tooltip */}
                   <div
-                    className="absolute top-4 px-2 py-1 bg-white border border-[#E5E7EB] rounded-lg shadow-sm text-[10px] whitespace-nowrap"
-                    style={{ left: `calc(${subscriptionData.usagePercent / 2}% - 30px)` }}
+                    className="w-max mt-1 px-2 py-1 bg-white border border-[#E5E7EB] rounded-lg shadow-sm text-[10px] whitespace-nowrap"
                   >
                     <span className="font-bold text-[#111827]">{subscriptionData.creditsUsed}</span>
                     <span className="text-[#6B7280]"> of </span>
@@ -268,8 +280,8 @@ const SubscriptionsTab = ({ cleanerId }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredPaymentHistory.length > 0 ? (
-                filteredPaymentHistory.map((row, index) => (
+              {paginatedPaymentHistory.length > 0 ? (
+                paginatedPaymentHistory.map((row, index) => (
                   <tr key={row._id || index} className="border-b border-[#EEF0F5] hover:bg-[#F9FAFB] transition-colors last:border-0">
                     <td className="px-6 py-4 text-center border-r border-[#EEF0F5]">
                       <input type="checkbox" className="rounded border-[#D1D5DB] text-[#1F6FEB] focus:ring-[#1F6FEB]" />
@@ -294,6 +306,15 @@ const SubscriptionsTab = ({ cleanerId }) => {
               )}
             </tbody>
           </table>
+          </div>
+          <div className="border-t border-[#EEF0F5]">
+            <PaginationRanges
+              currentPage={currentPage}
+              rowsPerPage={itemsPerPage}
+              totalItems={filteredPaymentHistory.length}
+              onPageChange={setCurrentPage}
+              onRowsPerPageChange={setItemsPerPage}
+            />
           </div>
         </div>
       </div>

@@ -243,15 +243,6 @@ export default function CustomerDetails({ customer, onBackToList, onJobViewDetai
             </div>
           </div>
 
-          {/* Total Spend Box */}
-          <div className="mt-4 px-3 md:px-4 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md">
-            <span className="text-xs md:text-sm font-medium">
-              <span className="text-primary font-medium">Total Spend</span>{" "}
-              <span className="text-primary-light font-semibold">
-                AU${(typeof customer.spend === "number" ? customer.spend : Number(customer.spend || 0)).toLocaleString()}
-              </span>
-            </span>
-          </div>
         </div>
       </div>
 

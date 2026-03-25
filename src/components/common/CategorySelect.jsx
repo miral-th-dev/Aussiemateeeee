@@ -41,7 +41,7 @@ export default function CategorySelect({
     return (
         <div className={`relative ${className}`} ref={containerRef}>
             <div 
-                className="relative w-full min-h-[42px] px-4 py-2 border border-gray-200 rounded-lg flex flex-wrap gap-2 items-center cursor-pointer bg-white transition-all focus-within:border-[#1F6FEB]"
+                className="relative w-full min-h-[42px] px-4 py-2 border border-gray-200 rounded-lg flex flex-wrap gap-2 items-center cursor-pointer bg-[#FCFCFC] transition-all focus-within:border-[#1F6FEB]"
                 onClick={toggleDropdown}
             >
                 {selectedCategories.length === 0 ? (

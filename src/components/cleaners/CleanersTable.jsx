@@ -8,6 +8,7 @@ import PaginationRanges from "../common/PaginationRanges";
 import silverTierIcon from "../../assets/icon/silver.svg";
 import goldTierIcon from "../../assets/icon/gold.svg";
 import bronzeTierIcon from "../../assets/icon/bronze.svg";
+import planStarIcon from "../../assets/icon/planStar.svg";
 import { fetchCleaners, fetchCleanersJobsStats } from "../../api/services/cleanersService";
 import Loader from "../common/Loader";
 import Avatar from "../common/Avatar";
@@ -26,6 +27,14 @@ export default function CleanersTable({ onViewCleaner }) {
     const [dateJoined, setDateJoined] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+    
+    // Debounce search input into searchQuery
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchQuery(searchInputValue.trim());
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchInputValue]);
     // Cache computed earnings from completed jobs (keyed by cleanerId)
     const [computedEarningsByCleanerId, setComputedEarningsByCleanerId] = useState({});
     // Cache computed total jobs count (keyed by cleanerId)
@@ -536,27 +545,11 @@ export default function CleanersTable({ onViewCleaner }) {
                         placeholder="Search by Name, ABN, Email, Role"
                         value={searchInputValue}
                         onChange={setSearchInputValue}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                const trimmedValue = searchInputValue.trim();
-                                setSearchQuery(trimmedValue);
-                                setCurrentPage(1); // Reset to page 1 when searching
-                            }
-                        }}
                         className="md:w-[300px]"
                     />
 
                     {/* Filters */}
                     <div className="w-full xl:w-auto flex flex-col sm:flex-row xl:flex-row xl:flex-nowrap gap-2 md:gap-3">
-                        <div className="w-full sm:w-auto sm:flex-1 xl:flex-none xl:w-32">
-                            <CustomSelect
-                                value={roleFilter}
-                                onChange={setRoleFilter}
-                                placeholder="Role"
-                                options={roleOptions}
-                                className="w-full"
-                            />
-                        </div>
 
                         <div className="w-full sm:w-auto sm:flex-1 xl:flex-none xl:w-32">
                             <CustomSelect
@@ -607,6 +600,12 @@ export default function CleanersTable({ onViewCleaner }) {
                                     Cleaner Name & Role
                                 </span>
                             </th>
+                            <th className="min-w-[150px] md:min-w-[200px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
+                                <span className="font-medium text-gray-700 text-xs md:text-sm">Plan</span>
+                            </th>
+                            <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
+                                <span className="font-medium text-gray-700 text-xs md:text-sm">Credits</span>
+                            </th>
                             <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                 <span className="font-medium text-gray-700 text-xs md:text-sm">Badge</span>
                             </th>
@@ -615,9 +614,6 @@ export default function CleanersTable({ onViewCleaner }) {
                             </th>
                             <th className="min-w-[80px] md:min-w-[100px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                 <span className="font-medium text-gray-700 text-xs md:text-sm">Rating</span>
-                            </th>
-                            <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
-                                <span className="font-medium text-gray-700 text-xs md:text-sm">Earnings</span>
                             </th>
                             <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                 <span className="font-medium text-gray-700 text-xs md:text-sm">Status</span>
@@ -668,9 +664,22 @@ export default function CleanersTable({ onViewCleaner }) {
                                                     <p className="font-medium text-primary text-xs md:text-sm truncate">
                                                         {cleaner.name}
                                                     </p>
-                                                    <p className="text-[12px] md:text-sm text-primary-light truncate">{cleaner.role}</p>
+                                                    {/* <p className="text-[12px] md:text-sm text-primary-light truncate">{cleaner.role}</p> */}
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td className="min-w-[150px] md:min-w-[200px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
+                                            <div className="inline-flex items-center gap-2 border-[0.6px] border-[#E9E9E9] bg-white rounded-full px-2.5 py-1">
+                                                <img src={planStarIcon} alt="Plan" className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                <span className="text-[11px] md:text-[13px] font-medium text-[#111827]">
+                                                    Domestic / General Cleaning
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
+                                            <span className="text-[11px] md:text-[13px] font-medium text-primary-light">
+                                                120 / 300
+                                            </span>
                                         </td>
                                         <td className="min-w-[130px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
                                             {(() => {
@@ -703,9 +712,7 @@ export default function CleanersTable({ onViewCleaner }) {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 text-primary font-medium border-r border-gray-200 text-xs md:text-sm">
-                                            {`AU$${Number(cleaner.earnings || 0).toLocaleString()}`}
-                                        </td>
+                                       
                                         <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200 ">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${statusColors.bg} ${statusColors.border} ${statusColors.text} text-xs md:text-sm font-medium`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${statusColors.dot}`} />

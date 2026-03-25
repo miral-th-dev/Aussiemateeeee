@@ -64,7 +64,7 @@ export default function ServiceCategoriesTable() {
     const handleSelectAll = (checked) => {
         setSelectAll(checked);
         if (checked) {
-            setSelectedRows(categories.map(c => c.id));
+            setSelectedRows(paginatedCategories.map(c => c.id));
         } else {
             setSelectedRows([]);
         }
@@ -123,6 +123,19 @@ export default function ServiceCategoriesTable() {
         }
     };
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
+    const filteredCategories = categories.filter(category =>
+        category?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const paginatedCategories = filteredCategories.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
     return (
         <div className="bg-white rounded-[16px] border border-[#F1F1F4] shadow-xs relative pb-4">
             <div className="p-4 border-b border-[#F1F1F4] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
@@ -146,7 +159,7 @@ export default function ServiceCategoriesTable() {
                 </button>
             </div>
 
-            <div className="overflow-x-auto min-h-[300px]">
+            <div className="overflow-x-auto">
                 <table className="w-full border-collapse min-w-[700px]">
                     <thead className="border-b border-[#F1F1F4]">
                         <tr>
@@ -186,8 +199,9 @@ export default function ServiceCategoriesTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {categories.map((category) => (
-                            <tr key={category.id} className="border-b border-[#F1F1F4] hover:bg-gray-50 transition-colors relative">
+                        {paginatedCategories.length > 0 ? (
+                            paginatedCategories.map((category, index) => (
+                                <tr key={category.id} className={`border-b border-[#F1F1F4] hover:bg-gray-50 transition-colors relative ${openActionMenuId === category.id ? "z-50" : "z-0"}`}>
                                 <td className="w-16 px-4 py-4 border-r border-[#F1F1F4]">
                                     <div className="flex items-center justify-center">
                                         <Checkbox
@@ -222,7 +236,7 @@ export default function ServiceCategoriesTable() {
                                     {openActionMenuId === category.id && (
                                         <div
                                             ref={menuRef}
-                                            className="absolute right-12 top-10 w-48 bg-white border border-[#F1F1F4] shadow-lg rounded-xl z-50 py-2"
+                                            className={`absolute right-12 ${index >= categories.length - 2 && categories.length > 2 ? "bottom-0" : "top-10"} w-48 bg-white border border-[#F1F1F4] shadow-lg rounded-xl z-50 py-2`}
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <button 
@@ -253,7 +267,14 @@ export default function ServiceCategoriesTable() {
                                     )}
                                 </td>
                             </tr>
-                        ))}
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="6" className="px-4 py-8 text-center text-sm text-[#6B7280]">
+                                No categories found.
+                            </td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
             </div>
@@ -261,7 +282,7 @@ export default function ServiceCategoriesTable() {
             <PaginationRanges
                 currentPage={currentPage}
                 rowsPerPage={itemsPerPage}
-                totalItems={categories.length}
+                totalItems={filteredCategories.length}
                 onPageChange={setCurrentPage}
                 onRowsPerPageChange={setItemsPerPage}
             />

@@ -6,6 +6,7 @@ import CustomSelect from "../common/CustomSelect";
 import DatePicker from "../common/DatePicker";
 import PaginationRanges from "../common/PaginationRanges";
 import { fetchCleanersKYC } from "../../api/services/cleanersService";
+import { getCategories } from "../../api/services/categoryService";
 import Loader from "../common/Loader";
 import Avatar from "../common/Avatar";
 
@@ -22,6 +23,14 @@ export default function ApprovalsTable({ onViewCleaner }) {
     const [dateJoined, setDateJoined] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Debounce search input into searchQuery
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchQuery(searchInputValue.trim());
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchInputValue]);
     // Track if we've loaded all data (when no pagination info available)
     const [hasAllDataLoaded, setHasAllDataLoaded] = useState(false);
     // Pagination info from API
@@ -34,14 +43,19 @@ export default function ApprovalsTable({ onViewCleaner }) {
         hasPrevPage: false
     });
 
-    const roleOptions = [
-        "Professional Cleaner",
-        "Student Cleaner",
-        "NDIS Assistant",
-        "Retail Auditor",
-        "Pet Sitter",
-        "Housekeeper",
-    ];
+    const [roleOptions, setRoleOptions] = useState([]);
+
+    // Fetch categories dynamically for Role filter
+    useEffect(() => {
+        getCategories()
+            .then((res) => {
+                const names = (res?.data || [])
+                    .filter((cat) => cat.isActive)
+                    .map((cat) => cat.name);
+                setRoleOptions(names);
+            })
+            .catch(() => setRoleOptions([]));
+    }, []);
 
     // Status filter options (for dropdown)
     // Note: current data only uses "Pending" and "Verified".
@@ -199,7 +213,7 @@ export default function ApprovalsTable({ onViewCleaner }) {
                     };
                 } else {
                     // Normal paginated fetch
-                    // If we already have all data loaded and no filters changed, skip fetching
+                    // If we already have all data loaded and no filters/search changed, skip fetching
                     // Data is already in cleaners state, pagination will be handled client-side
                     if (hasAllDataLoaded && !searchQuery && !roleFilter && !apiStatus) {
                         // Skip API call, but we still need to process existing data for pagination
@@ -434,10 +448,21 @@ export default function ApprovalsTable({ onViewCleaner }) {
                     });
                 }
 
-                setCleaners(mappedCleaners);
-
                 // Check if we fetched all data for client-side pagination
                 const fetchedAllData = response?._needsClientSidePagination === true;
+
+                // Apply client-side search filtering as extra accuracy layer (mirrors JobsTable pattern)
+                if (searchQuery) {
+                    const q = searchQuery.toLowerCase();
+                    mappedCleaners = mappedCleaners.filter((cleaner) => {
+                        const name = (cleaner.name || "").toLowerCase();
+                        const email = (cleaner.originalData?.email || cleaner.originalData?.cleanerEmail || "").toLowerCase();
+                        const abn = (cleaner.originalData?.abn || cleaner.originalData?.abnNumber || "").toLowerCase();
+                        return name.includes(q) || email.includes(q) || abn.includes(q);
+                    });
+                }
+
+                setCleaners(mappedCleaners);
 
                 // Update pagination info
                 // If we did client-side filtering (any status filter or date filter) or fetched all data, recalculate pagination
@@ -565,7 +590,7 @@ export default function ApprovalsTable({ onViewCleaner }) {
     // Reset to page 1 when filters change and reset all-data flag
     useEffect(() => {
         setCurrentPage(1);
-        setHasAllDataLoaded(false); // Reset when filters change
+        setHasAllDataLoaded(false); // Reset when filters/search change so API is re-queried
     }, [searchQuery, roleFilter, statusFilter, itemsPerPage, dateJoined]);
 
     if (loading) {
@@ -599,30 +624,12 @@ export default function ApprovalsTable({ onViewCleaner }) {
                         placeholder="ABN / Name / Email"
                         value={searchInputValue}
                         onChange={setSearchInputValue}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                const trimmedValue = searchInputValue.trim();
-                                setSearchQuery(trimmedValue);
-                                setCurrentPage(1); // Reset to page 1 when searching
-                            }
-                        }}
                         className="w-full md:w-[200px]"
                     />
 
 
                     {/* Filters */}
                     <div className="w-full xl:w-auto flex flex-col sm:flex-row xl:flex-row xl:flex-nowrap gap-2 md:gap-3">
-
-                        <div className="w-full sm:w-auto sm:flex-1 xl:flex-none xl:w-32">
-                            <CustomSelect
-                                value={roleFilter}
-                                onChange={setRoleFilter}
-                                placeholder="Role"
-                                options={roleOptions}
-                                className="w-full"
-                            />
-                        </div>
-
                         <div className="w-full sm:w-auto sm:flex-1 xl:flex-none xl:w-32">
                             <CustomSelect
                                 value={statusFilter}

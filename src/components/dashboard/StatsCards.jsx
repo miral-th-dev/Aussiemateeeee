@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import dashKYC from "../../assets/icon/dashKYC.svg";
 import dashJobs from "../../assets/icon/dashJobs.svg";
-import dashHeld from "../../assets/icon/dashHeld.svg";
+import subscription from "../../assets/icon/subscription.svg";
 import dashRevenue from "../../assets/icon/dashRevenue.svg";
 import cardsBg from "../../assets/image/cardsBg.svg";
 import { fetchCleanersKYCStats } from "../../api/services/cleanersService";
 import { fetchJobsStats } from "../../api/services/jobService";
 import { fetchRevenueMTD } from "../../api/services/dashboardService";
+import { getCleanerSubscriptionsReport } from "../../api/services/subscriptionService";
 
 const defaultCards = [
   { 
@@ -23,12 +24,13 @@ const defaultCards = [
     icon: dashJobs,
     isDynamic: true, // Mark this card as dynamic
   },
-  // {
-  //   id: 3,
-  //   label: "Escrow Held",
-  //   value: "$5,420",
-  //   icon: dashHeld,
-  // },
+  {
+    id: 3,
+    label: "Active Subscription Cleaner",
+    value: 0,
+    icon: subscription,
+    isDynamic: true,
+  },
   {
     id: 4,
     label: "Revenue (MTD)",
@@ -41,6 +43,7 @@ const defaultCards = [
 export default function StatsCards({ items = defaultCards }) {
   const [pendingKYC, setPendingKYC] = useState(null); // null means data not fetched yet
   const [totalJobs, setTotalJobs] = useState(null); // null means data not fetched yet
+  const [activeSubscriptions, setActiveSubscriptions] = useState(null);
   const [totalRevenue, setTotalRevenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -101,6 +104,19 @@ export default function StatsCards({ items = defaultCards }) {
           setTotalJobs(0);
         }
 
+        // Fetch Active Subscriptions
+        try {
+          const subscriptionReport = await getCleanerSubscriptionsReport();
+          if (subscriptionReport?.stats?.activeCleaners !== undefined) {
+             setActiveSubscriptions(subscriptionReport.stats.activeCleaners);
+          } else {
+             setActiveSubscriptions(0);
+          }
+        } catch (subError) {
+          console.error('Error fetching subscription stats:', subError);
+          setActiveSubscriptions(0);
+        }
+
         // Fetch Revenue MTD
         try {
           const revenueResponse = await fetchRevenueMTD();
@@ -159,6 +175,22 @@ export default function StatsCards({ items = defaultCards }) {
       };
     }
 
+    if (card.isDynamic && card.label === "Active Subscription Cleaner") {
+      let displayValue;
+      if (loading) {
+        displayValue = "...";
+      } else if (error || activeSubscriptions === null) {
+        displayValue = "-";
+      } else {
+        displayValue = activeSubscriptions;
+      }
+
+      return {
+        ...card,
+        value: displayValue,
+      };
+    }
+
     if (card.isDynamic && card.label === "Revenue (MTD)") {
       let displayValue;
       if (loading) {
@@ -179,7 +211,7 @@ export default function StatsCards({ items = defaultCards }) {
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
       {cards.map((card) => (
         <div
           key={card.id}

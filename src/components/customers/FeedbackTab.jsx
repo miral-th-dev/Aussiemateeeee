@@ -262,14 +262,14 @@ export default function FeedbackTab({ customer, reviews = [], pagination }) {
               slidesPerView="auto"
               autoplay={{ delay: 2800, disableOnInteraction: false }}
               loop={mappedReviews.length > 1}
-              className="!overflow-hidden !flex h-[145px] md:h-[160px]"
+              className="!overflow-hidden !flex h-auto min-h-[160px] md:min-h-[180px]"
               style={{ display: "flex", alignItems: "stretch", paddingBottom: "8px" }}
             >
               {mappedReviews.map((item) => (
                 <SwiperSlide
                   key={item.id}
-                  className="h-full flex !w-[260px] md:!w-[350px]"
-                  style={{ height: "100%", display: "flex" }}
+                  className="!h-auto flex !w-[260px] md:!w-[350px]"
+                  style={{ display: "flex" }}
                 >
                   <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-3 md:p-4 shadow-sm flex flex-col gap-2 md:gap-3 w-full h-full cursor-pointer">
                     <div className="flex items-center justify-between gap-2 md:gap-3 flex-shrink-0">
@@ -300,9 +300,6 @@ export default function FeedbackTab({ customer, reviews = [], pagination }) {
                     </div>
 
                     <div className="flex flex-col leading-tight flex-grow">
-                      <p className="text-[10px] md:text-xs text-primary-light truncate">
-                        {item.service}
-                      </p>
                       <p className="text-xs md:text-sm text-primary line-clamp-2">
                         {item.feedback}
                       </p>
@@ -323,43 +320,6 @@ export default function FeedbackTab({ customer, reviews = [], pagination }) {
           )}
         </div>
       </div>
-
-      {/* MatePoints table */}
-      {/* <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-sm" ref={matePointsRef}>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-7.5 py-4 border-b border-[#EEF0F5]">
-          <h3 className="text-base font-medium text-primary">MatePoints</h3>
-          <button
-            type="button"
-            onClick={handleExportReport}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
-          >
-            <Upload size={16} className="text-gray-600" />
-            Export report
-          </button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <div className="px-6 py-4">
-            {matePoints.map((row, index) => (
-              <div
-                key={row.id}
-                className={`flex items-center gap-6 py-2 ${index !== matePoints.length - 1 ? "" : ""
-                  }`}
-              >
-                <div className="text-base font-medium text-primary whitespace-nowrap min-w-[80px]">
-                  {row.points} pts
-                </div>
-                <div className="text-sm text-primary-light whitespace-nowrap min-w-[100px]">
-                  {row.id}
-                </div>
-                <div className="text-sm text-primary-light">
-                  {row.service}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 }

@@ -215,8 +215,10 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
             job.cleaner?.profilePhoto?.url ||
             job.cleaner?.avatar;
 
-        // Extract job type from serviceTypeDisplay or other fields
-        const jobType = job.serviceTypeDisplay ||
+        // Extract category and service type names from nested objects
+        const categoryName = job.categoryId?.name || job.category?.name || "";
+        const serviceTypeName = job.serviceTypeId?.name ||
+            job.serviceTypeDisplay ||
             job.jobType ||
             job.serviceType ||
             "Cleaning";
@@ -231,7 +233,9 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
         return {
             id: job._id || job.id,
             jobId: job.jobId || job.jobNumber || `AM${job._id?.slice(-6) || job.id}`,
-            jobType: jobType,
+            jobType: serviceTypeName,
+            categoryName: categoryName,
+            serviceTypeName: serviceTypeName,
             customer: {
                 name: customerName,
                 firstName: customerFirstName,
@@ -524,10 +528,10 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
                     // API pagination is working correctly - use jobs as-is
                     setJobs(mappedJobs);
 
-                    if (response?.data?.pagination) {
-                        const apiPagination = response.data.pagination;
+                    const apiPagination = response?.data?.pagination || response?.pagination;
+                    if (apiPagination) {
                         setPaginationInfo({
-                            currentPage: apiPagination.currentPage || currentPage,
+                            currentPage: apiPagination.currentPage || apiPagination.page || currentPage,
                             totalPages: apiPagination.totalPages || Math.max(1, Math.ceil(mappedJobs.length / itemsPerPage)),
                             totalJobs: apiPagination.totalJobs || apiPagination.total || mappedJobs.length,
                             limit: apiPagination.limit || itemsPerPage,
@@ -626,13 +630,16 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
         if (needsClientSidePagination) {
             return jobs.length;
         }
-        // For server-side pagination, use paginationInfo.totalJobs from API
+        // For server-side pagination, use paginationInfo.totalJobs or paginationInfo.total from API
         if (paginationInfo.totalJobs !== undefined && paginationInfo.totalJobs !== null) {
             return paginationInfo.totalJobs;
         }
+        if (paginationInfo.total !== undefined && paginationInfo.total !== null) {
+            return paginationInfo.total;
+        }
         // Fallback to jobs.length
         return jobs.length;
-    }, [jobs.length, paginationInfo.totalJobs, needsClientSidePagination]);
+    }, [jobs.length, paginationInfo.totalJobs, paginationInfo.total, needsClientSidePagination]);
 
     if (loading) {
         return (
@@ -693,25 +700,6 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
                                     onChange={setJobStatusFilter}
                                     placeholder="Job Status"
                                     options={jobStatusOptions}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="w-full sm:w-auto sm:flex-1 xl:flex-none xl:w-40">
-                                <CustomSelect
-                                    value={jobTypeFilter}
-                                    onChange={setJobTypeFilter}
-                                    placeholder="Job Type"
-                                    options={jobTypeOptions}
-                                    className="w-full"
-                                />
-                            </div>
-
-                            <div className="w-full sm:w-auto sm:flex-1 xl:flex-none xl:w-40">
-                                <CustomSelect
-                                    value={paymentStatusFilter}
-                                    onChange={setPaymentStatusFilter}
-                                    placeholder="Payment Status"
-                                    options={paymentStatusOptions}
                                     className="w-full"
                                 />
                             </div>
@@ -807,8 +795,13 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
                                             </span>
                                         </td>
                                         <td className="min-w-[120px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
-                                            <span className="text-primary font-medium text-xs md:text-sm">
-                                                {job.jobType}
+                                            {job.categoryName && (
+                                                <p className="text-[13px] text-[#4B5675]  font-medium truncate">
+                                                    {job.categoryName}
+                                                </p>
+                                            )}
+                                            <span className="text-[#111827] font-medium text-sm">
+                                                {job.serviceTypeName}
                                             </span>
                                         </td>
                                         <td className="min-w-[180px] md:min-w-[220px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">

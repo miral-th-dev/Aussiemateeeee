@@ -120,7 +120,7 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
         </div>
 
         {/* Avg Cleaner Rating */}
-        {/* <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 flex items-center gap-3 shadow-sm">
+        <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 flex items-center gap-3 shadow-sm">
           <div className="w-10 h-10 rounded-lg bg-[#EBF2FD] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
             <Star size={20} className="text-[#2563EB]" />
           </div>
@@ -130,20 +130,8 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
             </p>
             <p className="text-sm font-medium text-primary-light">Avg Cleaner Rating</p>
           </div>
-        </div> */}
-
-        {/* Total Spend */}
-        <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 flex items-center gap-3 shadow-sm">
-          <div className="w-10 h-10 rounded-lg bg-[#EBF2FD] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
-            <DollarSign size={20} className="text-[#2563EB]" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg font-semibold text-primary">
-              AU${totalSpend.toLocaleString()}
-            </p>
-            <p className="text-sm font-medium text-primary-light">Total Spend</p>
-          </div>
         </div>
+
       </div>
 
       {/* Recent Jobs Section */}
@@ -187,12 +175,10 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
                     className="h-full flex !w-[240px] md:!w-[320px]"
                     style={{ height: "100%", display: "flex" }}
                   >
-                    <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 space-y-1.5 md:space-y-2 w-full h-full shadow-sm flex flex-col cursor-pointer transition-transform hover:scale-[1.02]">
+                    <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 space-y-1.5 md:space-y-2 w-full h-full shadow-sm flex flex-col cursor-pointer transition-transform">
                       {/* Top row: Job ID and Status */}
                       <div className="flex items-start justify-between mb-0 gap-2 md:gap-3">
-                        <p className="text-[11px] md:text-sm text-primary-light font-medium truncate min-w-0">
-                          {job.jobId}
-                        </p>
+                        
                         <span
                           className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium whitespace-nowrap inline-flex items-center gap-1 ${isCompleted
                             ? "bg-[#EAFFF1] text-[#17C653] border border-[#17C65333]"
@@ -210,14 +196,14 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
                       </div>
 
                       {/* Service Type */}
-                      <p className="text-xs md:text-sm font-medium text-primary mb-0 truncate" title={job.service}>
+                      {/* <p className="text-xs md:text-sm font-medium text-primary mb-0 truncate" title={job.service}>
                         {job.service}
-                      </p>
+                      </p> */}
 
                       {/* Price */}
-                      <p className="text-sm md:text-base font-semibold text-primary mb-1 md:mb-2">
+                      {/* <p className="text-sm md:text-base font-semibold text-primary mb-1 md:mb-2">
                         AU${job.price.toLocaleString()}
-                      </p>
+                      </p> */}
 
                       {/* Location */}
                       <div className="flex items-start gap-1 md:gap-1.5 text-[11px] md:text-sm font-medium text-primary-light min-w-0">

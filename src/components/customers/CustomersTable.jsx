@@ -562,9 +562,6 @@ export default function CustomersTable({ onViewCustomer }) {
                             <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                 <span className="font-medium text-primary text-xs md:text-sm">Jobs Posted</span>
                             </th>
-                            <th className="min-w-[120px] md:min-w-[140px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
-                                <span className="font-medium text-primary text-xs md:text-sm">Spend</span>
-                            </th>
                             <th className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                                 <span className="font-medium text-primary text-xs md:text-sm">Joined</span>
                             </th>
@@ -632,9 +629,6 @@ export default function CustomersTable({ onViewCustomer }) {
                                     </td>
                                     <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 text-sm font-medium text-primary border-r border-gray-200">
                                         {customer.jobsPosted}
-                                    </td>
-                                    <td className="min-w-[120px] md:min-w-[140px] px-2 md:px-4 py-2 md:py-4 text-sm font-medium text-primary border-r border-gray-200">
-                                        AU${typeof customer.spend === 'number' ? customer.spend.toLocaleString() : customer.spend}
                                     </td>
                                     <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 text-sm font-medium text-primary border-r border-gray-200">
                                         {customer.joined}

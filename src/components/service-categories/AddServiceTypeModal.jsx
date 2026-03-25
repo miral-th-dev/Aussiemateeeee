@@ -25,6 +25,27 @@ export default function AddServiceTypeModal({ isOpen, onClose, onSave, editData,
         }
     }, [editData, isOpen]);
 
+    // Close on ESC key and Lock Scroll
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "unset";
+        }
+
+        const handleKeyDown = (e) => {
+            if (isOpen && e.key === "Escape") {
+                onClose?.();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = "unset";
+        };
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {

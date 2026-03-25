@@ -112,10 +112,6 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
 
                                             {/* Type & Status */}
                                             <div>
-                                                <p className="text-primary font-medium mb-1 truncate text-xs md:text-sm">
-                                                    {(job.type || "Job")} • {(job.subType || "Service")}
-                                                </p>
-
                                                 <span
                                                     className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium whitespace-nowrap inline-flex items-center gap-1 ${isAccepted
                                                         ? "bg-[#E1F0FF] text-[#1B84FF] border border-[#1B84FF33]"
@@ -130,6 +126,10 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
                                                     />
                                                     {statusLabel}
                                                 </span>
+                                                <p className="text-primary font-medium mb-1 truncate text-xs md:text-sm">
+                                                    {(job.type || "Job")} • {(job.subType || "Service")}
+                                                </p>
+
                                             </div>
 
                                             {/* Location */}
@@ -142,17 +142,6 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
                                             <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm font-medium text-primary-light">
                                                 <Calendar size={10} className="md:w-3 md:h-3 flex-shrink-0" />
                                                 <span>{formatShortDate(job.date)}</span>
-                                            </div>
-
-                                            {/* Payment Row */}
-                                            <div className="pt-1 md:pt-2 flex justify-between gap-2 md:gap-3">
-                                                <p className="text-xs md:text-sm font-medium truncate min-w-0">
-                                                    <span className="text-[#374151]">Payment: </span>
-                                                    <span className="text-primary">AU${paymentValue.toLocaleString()}</span>
-                                                </p>
-                                                <p className="text-xs md:text-sm font-medium text-[#374151] flex-shrink-0 truncate max-w-[40%] text-right">
-                                                    {job.releasedDate || ""}
-                                                </p>
                                             </div>
                                         </div>
                                     </SwiperSlide>

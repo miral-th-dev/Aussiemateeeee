@@ -103,16 +103,7 @@ export default function PlanCard({ plan, onStatusChange, onDeleteClick }) {
                                     <Pencil size={16} className="stroke-[2]" />
                                     <span className="font-medium">Edit Plan</span>
                                 </button>
-                                <button
-                                    className="w-full text-left px-4 py-2.5 text-sm text-[#4B5675] hover:text-[#1F6FEB] hover:bg-[#F5F8FF] focus:outline-none flex items-center gap-3 transition-colors group cursor-pointer"
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                    }}
-                                >
-                                    <Users size={18} className="stroke-[2]" />
-                                    <span className="font-medium">View Subscribers</span>
-                                </button>
-                                <div className="mx-2 my-1 border-t border-gray-100"></div>
+                                <div className="mx-2"></div>
                                 <button
                                     className="w-full text-left px-4 py-2.5 text-sm text-[#EF4444] hover:bg-[#FEF2F2] focus:outline-none flex items-center gap-3 transition-colors group cursor-pointer"
                                     onClick={() => {

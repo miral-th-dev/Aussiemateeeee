@@ -55,7 +55,7 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
     const handleSelectAll = (checked) => {
         setSelectAll(checked);
         if (checked) {
-            setSelectedRows(services.map(c => c.id));
+            setSelectedRows(paginatedServices.map(c => c.id));
         } else {
             setSelectedRows([]);
         }
@@ -108,6 +108,19 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
         setIsAddEditModalOpen(true);
     };
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
+    const filteredServices = services.filter(service =>
+        service?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const paginatedServices = filteredServices.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
     return (
         <div className="bg-white rounded-[16px] border border-[#F1F1F4] shadow-xs relative pb-4 mt-6">
             <div className="p-4 border-b border-[#F1F1F4] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
@@ -128,7 +141,7 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
                 </button>
             </div>
 
-            <div className="overflow-x-auto min-h-[300px]">
+            <div className="overflow-x-auto">
                 <table className="w-full border-collapse min-w-[700px]">
                     <thead className="border-b border-[#F1F1F4]">
                         <tr>
@@ -162,8 +175,9 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {services.map((service) => (
-                            <tr key={service.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors relative">
+                        {paginatedServices.length > 0 ? (
+                            paginatedServices.map((service) => (
+                                <tr key={service.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors relative">
                                 <td className="w-16 px-4 py-4 border-r border-[#F1F1F4]">
                                     <div className="flex items-center justify-center">
                                         <Checkbox
@@ -199,7 +213,14 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5" className="px-4 py-8 text-center text-sm text-[#6B7280]">
+                                No sub categories found.
+                            </td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
             </div>
@@ -207,7 +228,7 @@ export default function ServiceSubCategoriesTable({ categoryName }) {
             <PaginationRanges
                 currentPage={currentPage}
                 rowsPerPage={itemsPerPage}
-                totalItems={services.length}
+                totalItems={filteredServices.length}
                 onPageChange={setCurrentPage}
                 onRowsPerPageChange={setItemsPerPage}
             />

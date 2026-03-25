@@ -33,8 +33,13 @@ export default function OverviewTab({
     escrowStatus || jobDetails?.payment?.escrowStatus || "Pending";
   const isEscrowReleased = currentEscrowStatus?.toLowerCase() === "released";
 
+  const isUnassigned =
+    !jobDetails?.cleaner?.name ||
+    jobDetails.cleaner.name === "Unassigned" ||
+    jobDetails.cleaner.name === "—";
+
   // Get tier icon based on cleaner tier
-  const tier = (
+  const tier = isUnassigned ? "none" : (
     jobDetails?.cleaner?.tier ||
     jobDetails?.cleaner?.badge ||
     "none"
@@ -498,9 +503,9 @@ export default function OverviewTab({
                   )}
                 </div>
 
-                {jobDetails.cleaner?.searchRadius && (
+                {(jobDetails.cleaner?.location?.searchRadius || jobDetails?.cleaner?.searchRadius || jobDetails?.originalData?.cleaner?.location?.searchRadius) && (
                   <p className="text-sm text-primary-light mt-1">
-                    {jobDetails.cleaner.searchRadius} km distance radius
+                    {jobDetails.cleaner?.location?.searchRadius || jobDetails?.cleaner?.searchRadius || jobDetails?.originalData?.cleaner?.location?.searchRadius} km distance radius
                   </p>
                 )}
               </div>

@@ -134,7 +134,7 @@ const PaginationRanges = ({
                 <button
                   key={page}
                   onClick={() => onPageChange(page)}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${
                     page === currentPage
                       ? "bg-[#F1F4F9] text-primary font-medium"
                       : "text-gray-600 hover:bg-gray-100"
