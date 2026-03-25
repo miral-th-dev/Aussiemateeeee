@@ -4,10 +4,7 @@ import dashJobs from "../../assets/icon/dashJobs.svg";
 import subscription from "../../assets/icon/subscription.svg";
 import dashRevenue from "../../assets/icon/dashRevenue.svg";
 import cardsBg from "../../assets/image/cardsBg.svg";
-import { fetchCleanersKYCStats } from "../../api/services/cleanersService";
-import { fetchJobsStats } from "../../api/services/jobService";
 import { fetchRevenueMTD } from "../../api/services/dashboardService";
-import { getCleanerSubscriptionsReport } from "../../api/services/subscriptionService";
 
 const defaultCards = [
   { 
@@ -41,10 +38,7 @@ const defaultCards = [
 ];
 
 export default function StatsCards({ items = defaultCards }) {
-  const [pendingKYC, setPendingKYC] = useState(null); // null means data not fetched yet
-  const [totalJobs, setTotalJobs] = useState(null); // null means data not fetched yet
-  const [activeSubscriptions, setActiveSubscriptions] = useState(null);
-  const [totalRevenue, setTotalRevenue] = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -53,85 +47,14 @@ export default function StatsCards({ items = defaultCards }) {
       try {
         setLoading(true);
         setError(false);
-
-        // Fetch KYC stats
-        const kycResponse = await fetchCleanersKYCStats();
-
-        // Handle different response structures
-        const statsData = kycResponse?.data || kycResponse;
-
-        if (statsData?.statusBreakdown) {
-          // Calculate pending KYC: sum of no_documents, partial, and pending_review
-          // This matches the logic in ApprovalsTable.jsx
-          const pendingCount =
-            (statsData.statusBreakdown.no_documents || 0) +
-            (statsData.statusBreakdown.partial || 0) +
-            (statsData.statusBreakdown.pending_review || 0);
-
-          setPendingKYC(pendingCount);
-        } else if (statsData?.pendingReview !== undefined) {
-          // If API provides a direct pendingReview count, use it
-          // But we should still sum the breakdown if available for accuracy
-          const breakdown = statsData.statusBreakdown || {};
-          const pendingCount =
-            (breakdown.no_documents || 0) +
-            (breakdown.partial || 0) +
-            (breakdown.pending_review || 0) ||
-            statsData.pendingReview;
-
-          setPendingKYC(pendingCount);
+        const response = await fetchRevenueMTD();
+        if (response?.success && response?.data) {
+          setStats(response.data);
         } else {
-          // No valid data found
-          setPendingKYC(0);
-        }
-
-        // Fetch Jobs stats
-        try {
-          const jobsResponse = await fetchJobsStats();
-
-          // Debug: log the response
-          console.log('StatsCards jobsResponse:', jobsResponse);
-
-          // fetchJobsStats returns { totalJobs: number }
-          if (jobsResponse?.totalJobs !== undefined && jobsResponse.totalJobs !== null) {
-            setTotalJobs(jobsResponse.totalJobs);
-          } else {
-            console.warn('StatsCards: totalJobs is undefined or null in response:', jobsResponse);
-            setTotalJobs(0);
-          }
-        } catch (jobsError) {
-          console.error('Error fetching jobs stats:', jobsError);
-          setTotalJobs(0);
-        }
-
-        // Fetch Active Subscriptions
-        try {
-          const subscriptionReport = await getCleanerSubscriptionsReport();
-          if (subscriptionReport?.stats?.activeCleaners !== undefined) {
-             setActiveSubscriptions(subscriptionReport.stats.activeCleaners);
-          } else {
-             setActiveSubscriptions(0);
-          }
-        } catch (subError) {
-          console.error('Error fetching subscription stats:', subError);
-          setActiveSubscriptions(0);
-        }
-
-        // Fetch Revenue MTD
-        try {
-          const revenueResponse = await fetchRevenueMTD();
-          const revenueData = revenueResponse?.data || revenueResponse;
-          if (revenueData?.summary?.totalRevenue !== undefined) {
-            setTotalRevenue(revenueData.summary.totalRevenue);
-          } else {
-            setTotalRevenue(0);
-          }
-        } catch (revenueError) {
-          console.error('Error fetching revenue stats:', revenueError);
-          setTotalRevenue(0);
+          setStats(null);
         }
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('Error fetching dashboard stats:', error);
         setError(true);
       } finally {
         setLoading(false);
@@ -143,94 +66,59 @@ export default function StatsCards({ items = defaultCards }) {
 
   // Merge dynamic data with static cards
   const cards = items.map((card) => {
-    if (card.isDynamic && card.label === "Pending KYC") {
-      let displayValue;
-      if (loading) {
-        displayValue = "..."; // Loading state
-      } else if (error || pendingKYC === null) {
-        displayValue = "-"; // Show dash when data not available or error
-      } else {
-        displayValue = pendingKYC; // Show actual count
-      }
+    if (!card.isDynamic) return card;
 
-      return {
-        ...card,
-        value: displayValue,
-      };
+    let displayValue;
+    if (loading) {
+      displayValue = "...";
+    } else if (error || !stats) {
+      displayValue = "-";
+    } else {
+      switch (card.label) {
+        case "Pending KYC":
+          displayValue = stats.pendingKYC || 0;
+          break;
+        case "Total Jobs":
+          displayValue = stats.totalJobs || 0;
+          break;
+        case "Active Subscription Cleaner":
+          displayValue = stats.activeSubscriptionCleaners || 0;
+          break;
+        case "Revenue (MTD)":
+          displayValue = stats.totalRevenueFormatted || `$${(stats.totalRevenue || 0).toLocaleString()}`;
+          break;
+        default:
+          displayValue = card.value;
+      }
     }
 
-    if (card.isDynamic && card.label === "Total Jobs") {
-      let displayValue;
-      if (loading) {
-        displayValue = "..."; // Loading state
-      } else if (error || totalJobs === null) {
-        displayValue = "-"; // Show dash when data not available or error
-      } else {
-        displayValue = totalJobs; // Show actual count
-      }
-
-      return {
-        ...card,
-        value: displayValue,
-      };
-    }
-
-    if (card.isDynamic && card.label === "Active Subscription Cleaner") {
-      let displayValue;
-      if (loading) {
-        displayValue = "...";
-      } else if (error || activeSubscriptions === null) {
-        displayValue = "-";
-      } else {
-        displayValue = activeSubscriptions;
-      }
-
-      return {
-        ...card,
-        value: displayValue,
-      };
-    }
-
-    if (card.isDynamic && card.label === "Revenue (MTD)") {
-      let displayValue;
-      if (loading) {
-        displayValue = "...";
-      } else if (error || totalRevenue === null) {
-        displayValue = "-";
-      } else {
-        displayValue = `AU$${Number(totalRevenue || 0).toLocaleString()}`;
-      }
-
-      return {
-        ...card,
-        value: displayValue,
-      };
-    }
-
-    return card;
+    return {
+      ...card,
+      value: displayValue,
+    };
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 w-full">
       {cards.map((card) => (
         <div
           key={card.id}
-          className="flex items-center gap-4 bg-white rounded-[20px] md:px-6 md:py-4 py-2 px-2 shadow-sm border border-[#EEF0F5] bg-cover bg-center bg-no-repeat"
+          className="flex items-center gap-3 sm:gap-4 bg-white rounded-[16px] xl:rounded-[20px] p-4 sm:p-5 xl:px-6 xl:py-4 shadow-sm border border-[#EEF0F5] bg-cover bg-center bg-no-repeat min-h-[90px] xl:min-h-[100px]"
           style={{ backgroundImage: `url(${cardsBg})` }}
         >
-          <div className="flex items-center justify-center w-14 h-14 rounded-2xl">
+          <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl xl:rounded-2xl">
             <img
               src={card.icon}
               alt={card.label}
-              className="w-14 h-14"
+              className="w-full h-full object-contain"
             />
           </div>
 
-          <div className="flex flex-col">
-            <span className="md:text-[28px] text-lg font-semibold text-[#1C1C1C] leading-tight">
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-xl sm:text-[22px] xl:text-[28px] font-semibold text-[#1C1C1C] leading-tight truncate">
               {card.value}
             </span>
-            <span className="text-sm font-medium text-[#7E7E87] mt-1">
+            <span className="text-xs sm:text-sm font-medium text-[#7E7E87] mt-0.5 xl:mt-1 truncate">
               {card.label}
             </span>
           </div>
