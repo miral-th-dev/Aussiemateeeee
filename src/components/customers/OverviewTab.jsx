@@ -18,14 +18,11 @@ const formatShortDateTime = (value) => {
 
 const mapCustomerJobForUi = (job) => {
   const statusRaw = (job?.status || job?.jobStatus || "").toString().toLowerCase();
-  const status =
-    statusRaw === "completed" || statusRaw === "done"
-      ? "Completed"
-      : statusRaw === "cancelled" || statusRaw === "canceled"
-        ? "Cancelled"
-        : statusRaw === "rejected"
-          ? "Cancelled"
-          : "In Progress";
+  let status = "In Progress";
+  
+  if (statusRaw === "completed" || statusRaw === "done") status = "Completed";
+  else if (statusRaw === "cancelled" || statusRaw === "canceled" || statusRaw === "rejected") status = "Cancelled";
+  else if (statusRaw === "on_the_way" || statusRaw === "in_progress") status = "In Progress";
 
   const locationObj = job?.location || {};
   const location =
@@ -33,19 +30,6 @@ const mapCustomerJobForUi = (job) => {
     locationObj?.address ||
     [locationObj?.city, locationObj?.state].filter(Boolean).join(", ") ||
     "N/A";
-
-  const service =
-    job?.serviceTypeDisplay ||
-    job?.serviceType ||
-    job?.service ||
-    job?.jobType ||
-    "Service";
-
-  const detail =
-    job?.serviceDetail ||
-    job?.propertyType ||
-    job?.petType ||
-    "";
 
   const amount =
     job?.acceptedQuoteId?.price ??
@@ -57,9 +41,11 @@ const mapCustomerJobForUi = (job) => {
   return {
     id: job?._id || job?.id || job?.jobId,
     jobId: job?.jobId || job?._id || "N/A",
-    service: detail ? `${service} • ${detail}` : service,
+    categoryName: job?.categoryId?.name || "Cleaning",
+    serviceTypeName: job?.serviceTypeId?.name || job?.serviceTypeDisplay || "Job Detail",
     price: Number(amount || 0),
     status,
+    rawStatus: statusRaw,
     location,
     date: formatShortDateTime(job?.scheduledDate || job?.createdAt || job?.updatedAt),
   };
@@ -172,49 +158,54 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
                 return (
                   <SwiperSlide
                     key={job.id}
-                    className="h-full flex !w-[240px] md:!w-[320px]"
+                    className="h-full flex !w-[220px] md:!w-[300px]"
                     style={{ height: "100%", display: "flex" }}
                   >
-                    <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 space-y-1.5 md:space-y-2 w-full h-full shadow-sm flex flex-col cursor-pointer transition-transform">
-                      {/* Top row: Job ID and Status */}
-                      <div className="flex items-start justify-between mb-0 gap-2 md:gap-3">
-                        
+                    <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-2.5 w-full h-full shadow-sm flex flex-col hover:border-primary/20 transition-all group">
+                      {/* Status Badge */}
+                      <div>
                         <span
-                          className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium whitespace-nowrap inline-flex items-center gap-1 ${isCompleted
-                            ? "bg-[#EAFFF1] text-[#17C653] border border-[#17C65333]"
-                            : isCancelled
-                              ? "bg-[#FEE2E2] text-[#EF4444] border border-[#EF444433]"
-                              : "bg-[#FFF8DD] text-[#F6B100] border border-[#F6B10033]"
-                            }`}
+                          className={`px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold whitespace-nowrap inline-flex items-center gap-2 ${
+                            job.status === "Completed"
+                              ? "bg-[#EAFFF1] text-[#17C653] border border-[#17C65333]"
+                              : job.status === "Cancelled"
+                                ? "bg-[#FFEEF3] text-[#F8285A] border border-[#F8285A33]"
+                                : "bg-[#FFF8DD] text-[#F6B100] border border-[#F6B10033]"
+                          }`}
                         >
                           <span
-                            className={`w-1 md:w-1.5 h-1 md:h-1.5 rounded-full ${isCompleted ? "bg-[#17C653]" : isCancelled ? "bg-[#EF4444]" : "bg-[#F6B100]"
-                              }`}
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              job.status === "Completed" ? "bg-[#17C653]" : job.status === "Cancelled" ? "bg-[#F8285A]" : "bg-[#F6B100]"
+                            }`}
                           />
                           {job.status}
                         </span>
                       </div>
 
-                      {/* Service Type */}
-                      {/* <p className="text-xs md:text-sm font-medium text-primary mb-0 truncate" title={job.service}>
-                        {job.service}
-                      </p> */}
-
-                      {/* Price */}
-                      {/* <p className="text-sm md:text-base font-semibold text-primary mb-1 md:mb-2">
-                        AU${job.price.toLocaleString()}
-                      </p> */}
-
-                      {/* Location */}
-                      <div className="flex items-start gap-1 md:gap-1.5 text-[11px] md:text-sm font-medium text-primary-light min-w-0">
-                        <MapPin size={12} className="flex-shrink-0 mt-0.5 md:w-[14px] md:h-[14px]" />
-                        <span className="truncate min-w-0" title={job.location}>{job.location}</span>
+                      {/* Category & Service Type */}
+                      <div className="space-y-0.5">
+                        <p className="text-[#80849C] font-medium text-[11px] md:text-xs tracking-wide">
+                          {job.categoryName}
+                        </p>
+                        <h4 className="text-[#071437] font-medium text-sm md:text-[15px] leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                          {job.serviceTypeName}
+                        </h4>
                       </div>
 
-                      {/* Date & Time */}
-                      <div className="flex items-center gap-1 md:gap-1.5 text-[11px] md:text-sm font-medium text-primary-light">
-                        <Calendar size={12} className="flex-shrink-0 md:w-[14px] md:h-[14px]" />
-                        <span>{job.date}</span>
+                      {/* Footer Info */}
+                      <div className="space-y-1.5 mt-1.5">
+                        <div className="flex items-center gap-2 text-[#7E8299]">
+                          <MapPin size={14} className="text-[#A1A5B7] flex-shrink-0" />
+                          <span className="text-[11px] md:text-xs font-medium truncate">
+                            {job.location}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[#7E8299]">
+                          <Calendar size={14} className="text-[#A1A5B7] flex-shrink-0" />
+                          <span className="text-[11px] md:text-xs font-medium">
+                            {job.date}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </SwiperSlide>

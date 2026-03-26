@@ -33,7 +33,7 @@ export default function ServiceCategoriesTable() {
             const mappedCategories = (response.data || []).map(cat => ({
                 id: cat._id,
                 name: cat.name,
-                subCategories: cat.serviceTypeCount || 0,
+                subCategories: cat.serviceCount || 0,
                 createdDate: new Date(cat.createdAt).toLocaleDateString(),
                 status: cat.isActive,
                 imageUrl: cat.imageUrl,

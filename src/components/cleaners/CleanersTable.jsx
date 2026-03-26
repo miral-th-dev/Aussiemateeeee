@@ -120,6 +120,10 @@ export default function CleanersTable({ onViewCleaner }) {
         const status = cleaner.status || (isVerified ? "Active" : "Pending Docs");
         const joined = formatDateFromAPI(cleaner.createdAt || cleaner.joined || cleaner.dateJoined);
 
+        const planName = cleaner.subscription?.planId?.name || "No Plan";
+        const availableCredits = cleaner.availableCredits || 0;
+        const totalCredits = cleaner.totalCredits || 0;
+
         return {
             id: cleaner._id || cleaner.id,
             name: name,
@@ -134,6 +138,11 @@ export default function CleanersTable({ onViewCleaner }) {
             earnings: earnings,
             status: status,
             joined: joined,
+            planName: planName,
+            credits: {
+                available: availableCredits,
+                total: totalCredits
+            },
             // Keep original data for details view
             originalData: cleaner,
         };
@@ -672,13 +681,13 @@ export default function CleanersTable({ onViewCleaner }) {
                                             <div className="inline-flex items-center gap-2 border-[0.6px] border-[#E9E9E9] bg-white rounded-full px-2.5 py-1">
                                                 <img src={planStarIcon} alt="Plan" className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                                 <span className="text-[11px] md:text-[13px] font-medium text-[#111827]">
-                                                    Domestic / General Cleaning
+                                                    {cleaner.planName}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="min-w-[100px] md:min-w-[120px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
                                             <span className="text-[11px] md:text-[13px] font-medium text-primary-light">
-                                                120 / 300
+                                                {cleaner.credits.available} / {cleaner.credits.total}
                                             </span>
                                         </td>
                                         <td className="min-w-[130px] md:min-w-[150px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
