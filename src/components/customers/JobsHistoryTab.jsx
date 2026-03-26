@@ -68,11 +68,12 @@ const mapCustomerJobForUi = (job) => {
     job?.price ??
     0;
 
-  const cleaner = job?.acceptedQuoteId?.cleanerId || job?.cleanerId || job?.cleaner || null;
-  const cleanerId = cleaner?._id || cleaner?.id || null;
-  const cleanerNameRaw =
-    cleaner?.name || `${cleaner?.firstName || ""} ${cleaner?.lastName || ""}`.trim();
-  const isUnassigned = !cleaner || !cleanerId || !cleanerNameRaw;
+  const assignedCleaner = job?.assignedCleanerId || job?.acceptedQuoteId?.cleanerId || job?.cleanerId || job?.cleaner || null;
+  const cleanerId = assignedCleaner?._id || assignedCleaner?.id || null;
+  const cleanerFirstName = assignedCleaner?.firstName || "";
+  const cleanerLastName = assignedCleaner?.lastName || "";
+  const cleanerNameRaw = assignedCleaner?.name || `${cleanerFirstName} ${cleanerLastName}`.trim();
+  const isUnassigned = !assignedCleaner || !cleanerId || !cleanerNameRaw;
   const cleanerName = isUnassigned ? "Unassigned" : cleanerNameRaw;
 
   return {
@@ -81,10 +82,12 @@ const mapCustomerJobForUi = (job) => {
     jobId: job?.jobId || job?._id || "N/A",
     jobType: job?.serviceTypeDisplay || job?.serviceType || job?.service || job?.jobType || "Service",
     cleaner: {
-      ...(cleaner || {}),
+      ...(assignedCleaner || {}),
       _id: cleanerId,
+      firstName: cleanerFirstName,
+      lastName: cleanerLastName,
       name: cleanerName,
-      avatar: cleaner?.avatar || cleaner?.profilePhoto?.url || cleaner?.profilePhoto || "",
+      avatar: assignedCleaner?.avatar || assignedCleaner?.profilePhoto?.url || assignedCleaner?.profilePhoto || "",
       isUnassigned,
     },
     amount: Number(amount || 0),
@@ -316,11 +319,7 @@ export default function JobsHistoryTab({ customer, onViewJob }) {
                   Cleaner
                 </span>
               </th>
-              <th className="min-w-[100px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
-                <span className="font-medium text-gray-700 text-xs md:text-sm">
-                  Amount
-                </span>
-              </th>
+           
               <th className="min-w-[120px] px-2 md:px-4 py-2 md:py-3 text-left border-r border-gray-200">
                 <span className="font-medium text-gray-700 text-xs md:text-sm">
                   Status
@@ -396,11 +395,7 @@ export default function JobsHistoryTab({ customer, onViewJob }) {
                       </p>
                     </div>
                   </td>
-                  <td className="min-w-[100px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
-                    <p className="text-sm font-medium text-primary">
-                      AU${Number(job.amount).toLocaleString()}
-                    </p>
-                  </td>
+                 
                   <td className="min-w-[120px] px-2 md:px-4 py-2 md:py-4 border-r border-gray-200">
                     {getStatusBadge(job.status)}
                   </td>

@@ -461,14 +461,17 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
           <div className="space-y-2">
             {/* Name + role in a single row */}
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <h2 className="text-base md:text-lg font-semibold text-primary">
+              <h2 className="text-base md:text-lg font-semibold text-[#071437]">
                 {displayCleaner.name}
               </h2>
-              {/* {displayCleaner.role && (
-                <span className="text-xs md:text-sm text-[#9CA3AF]">
-                  • {displayCleaner.role}
+              {(displayCleaner.subscription?.status === "active" || displayCleaner.kyc?.subscription?.status === "active") && (
+                <span className="flex items-center gap-2">
+                  <span className="text-[#071437] font-bold text-lg">•</span>
+                  <span className="text-[#1B84FF] font-bold text-base md:text-lg">
+                    Pro Cleaner
+                  </span>
                 </span>
-              )} */}
+              )}
             </div>
 
             {/* Joined date, jobs completed, location */}

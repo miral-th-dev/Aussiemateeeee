@@ -108,40 +108,53 @@ export default function OverviewTab({ cleaner, jobsCompleted, averageRating, tot
                                         style={{ height: "100%", display: "flex" }}
                                     >
 
-                                        <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 space-y-1.5 md:space-y-2 w-full h-full shadow-xs flex flex-col">
-
-                                            {/* Type & Status */}
+                                        <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-2.5 w-full h-full shadow-sm flex flex-col hover:border-primary/20 transition-all group">
+                                            {/* Status Badge */}
                                             <div>
                                                 <span
-                                                    className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium whitespace-nowrap inline-flex items-center gap-1 ${isAccepted
-                                                        ? "bg-[#E1F0FF] text-[#1B84FF] border border-[#1B84FF33]"
-                                                        : isInProgress
-                                                            ? "bg-[#FFF8DD] text-[#F6B100] border border-[#F6B10033]"
-                                                            : "bg-[#EAFFF1] text-[#17C653] border border-[#17C65333]"
+                                                    className={`px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold whitespace-nowrap inline-flex items-center gap-2 ${
+                                                        job.status?.toLowerCase() === "completed"
+                                                            ? "bg-[#EAFFF1] text-[#17C653] border border-[#17C65333]"
+                                                            : job.status?.toLowerCase() === "cancelled"
+                                                                ? "bg-[#FFEEF3] text-[#F8285A] border border-[#F8285A33]"
+                                                                : job.status?.toLowerCase() === "on_the_way" || job.status?.toLowerCase() === "in_progress"
+                                                                    ? "bg-[#FFF8DD] text-[#F6B100] border border-[#F6B10033]"
+                                                                    : "bg-[#E1F0FF] text-[#1B84FF] border border-[#1B84FF33]"
                                                         }`}
                                                 >
                                                     <span
-                                                        className={`w-1 h-1 md:w-1.5 md:h-1.5 rounded-full ${isAccepted ? "bg-[#1B84FF]" : isInProgress ? "bg-[#F6B100]" : "bg-[#17C653]"
-                                                            }`}
+                                                        className={`w-1.5 h-1.5 rounded-full ${
+                                                            job.status?.toLowerCase() === "completed" ? "bg-[#17C653]" : job.status?.toLowerCase() === "cancelled" ? "bg-[#F8285A]" : job.status?.toLowerCase() === "on_the_way" || job.status?.toLowerCase() === "in_progress" ? "bg-[#F6B100]" : "bg-[#1B84FF]"
+                                                        }`}
                                                     />
-                                                    {statusLabel}
+                                                    <span className="capitalize">{job.status?.toLowerCase().replace(/_/g, " ") || "Pending"}</span>
                                                 </span>
-                                                <p className="text-primary font-medium mb-1 truncate text-xs md:text-sm">
-                                                    {(job.type || "Job")} • {(job.subType || "Service")}
+                                            </div>
+
+                                            {/* Category & Service Type */}
+                                            <div className="space-y-0.5">
+                                                <p className="text-[#80849C] font-medium text-[11px] md:text-xs tracking-wide">
+                                                    {job.categoryId?.name || job.category?.name || "Cleaning"}
                                                 </p>
-
+                                                <h4 className="text-[#071437] font-medium text-sm md:text-[15px] leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                                                    {job.serviceTypeId?.name || job.serviceType?.name || job.jobType || "Job Detail"}
+                                                </h4>
                                             </div>
 
-                                            {/* Location */}
-                                            <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm font-medium text-primary-light">
-                                                <MapPin size={10} className="md:w-3 md:h-3 flex-shrink-0" />
-                                                <span className="truncate min-w-0">{job.location || "N/A"}</span>
-                                            </div>
-
-                                            {/* Date */}
-                                            <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm font-medium text-primary-light">
-                                                <Calendar size={10} className="md:w-3 md:h-3 flex-shrink-0" />
-                                                <span>{formatShortDate(job.date)}</span>
+                                            {/* Footer Info */}
+                                            <div className="space-y-1.5 mt-1.5">
+                                                <div className="flex items-center gap-2 text-[#7E8299]">
+                                                    <MapPin size={14} className="text-[#A1A5B7] flex-shrink-0" />
+                                                    <span className="text-[11px] md:text-xs font-medium truncate">
+                                                        {job.location?.address || job.location || "Location N/A"}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[#7E8299]">
+                                                    <Calendar size={14} className="text-[#A1A5B7] flex-shrink-0" />
+                                                    <span className="text-[11px] md:text-xs font-medium">
+                                                        {formatShortDate(job.scheduledDate || job.date || job.createdAt)}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </SwiperSlide>

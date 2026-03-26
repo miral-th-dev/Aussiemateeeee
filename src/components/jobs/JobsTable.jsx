@@ -200,18 +200,20 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
             job.customer?.profilePhoto?.url ||
             job.customer?.avatar;
 
-        // Extract cleaner data from acceptedQuoteId.cleanerId object
-        const cleanerId = job.acceptedQuoteId?.cleanerId ||
+        // Extract cleaner data from assignedCleanerId or other potential sources
+        const cleanerSource = job.assignedCleanerId || 
+            job.acceptedQuoteId?.cleanerId ||
             job.cleanerId ||
             job.cleaner || {};
-        const cleanerFirstName = cleanerId.firstName || "";
-        const cleanerLastName = cleanerId.lastName || "";
-        const cleanerName = `${cleanerFirstName} ${cleanerLastName}`.trim() ||
-            cleanerId.name ||
-            job.cleanerName ||
-            "Unassigned";
-        const cleanerAvatar = cleanerId.profilePhoto?.url ||
-            cleanerId.avatar ||
+        
+        const cleanerFirstName = cleanerSource.firstName || "";
+        const cleanerLastName = cleanerSource.lastName || "";
+        const cleanerName = (cleanerFirstName || cleanerLastName)
+            ? `${cleanerFirstName} ${cleanerLastName}`.trim()
+            : (cleanerSource.name || job.cleanerName || "Unassigned");
+            
+        const cleanerAvatar = cleanerSource.profilePhoto?.url ||
+            cleanerSource.avatar ||
             job.cleaner?.profilePhoto?.url ||
             job.cleaner?.avatar;
 
@@ -249,7 +251,7 @@ const JobsTable = forwardRef(({ onViewJob }, ref) => {
                 firstName: cleanerFirstName,
                 lastName: cleanerLastName,
                 avatar: cleanerAvatar,
-                id: cleanerId._id || cleanerId.id,
+                id: cleanerSource._id || cleanerSource.id,
             },
             jobStatus: normalizeJobStatus(job.jobStatus || job.status || "Upcoming"),
             paymentStatus: job.paymentStatus ||
