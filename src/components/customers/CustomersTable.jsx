@@ -472,10 +472,19 @@ export default function CustomersTable({ onViewCustomer }) {
         );
     };
 
+    // Debounce search input into searchQuery
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchQuery(searchInputValue.trim());
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchInputValue]);
+
     // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, roleFilter, statusFilter, locationFilter, badgeFilter, dateJoined, itemsPerPage]);
+    }, [searchQuery, roleFilter, statusFilter, locationFilter, badgeFilter, dateJoined, itemsPerPage, ndisOnly]);
+
 
     // Calculate total items for pagination
     const totalItemsForPagination = useMemo(() => {
@@ -520,15 +529,9 @@ export default function CustomersTable({ onViewCustomer }) {
                         placeholder="Search by Name, ABN, Email, Role"
                         value={searchInputValue}
                         onChange={setSearchInputValue}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                const trimmedValue = searchInputValue.trim();
-                                setSearchQuery(trimmedValue);
-                                setCurrentPage(1); // Reset to page 1 when searching
-                            }
-                        }}
                         className="md:w-[300px]"
                     />
+
 
                     {/* NDIS Participant Toggle */}
                     <div className="w-full xl:w-auto flex items-center justify-start xl:justify-end gap-3">

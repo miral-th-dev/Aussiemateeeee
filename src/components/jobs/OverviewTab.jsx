@@ -363,12 +363,6 @@ export default function OverviewTab({
       ]
     : [
         {
-          id: "release-funds",
-          label: "Release Funds",
-          icon: <RefreshCcw size={22} className="text-[#1F6FEB]" />,
-          onClick: () => setIsReleaseModalOpen(true),
-        },
-        {
           id: "invoice",
           label: "Generate Invoice (PDF)",
           icon: <FileText size={22} className="text-[#8CA4C3]" />,
@@ -512,63 +506,6 @@ export default function OverviewTab({
             </div>
           </div>
         </div>
-        {/* Payment Card */}
-        {/* <div className="bg-white rounded-[20px] mt-5">
-                    <h3 className="text-xs sm:text-sm md:text-base font-semibold text-primary mb-4">
-                        Payment
-                    </h3>
-
-                    <div className="space-y-3">
-
-                        <div className="flex sm:grid sm:grid-cols-[160px_auto] justify-between sm:justify-start items-center gap-1 sm:gap-2">
-                            <span className="text-xs sm:text-sm text-primary-light">Mode:</span>
-                            <span className="text-xs sm:text-sm font-medium text-primary">
-                                {jobDetails.payment.mode}
-                            </span>
-                        </div>
-
-                        <div className="flex sm:grid sm:grid-cols-[160px_auto] justify-between sm:justify-start items-center gap-1 sm:gap-2">
-                            <span className="text-xs sm:text-sm text-primary-light">Amount Paid:</span>
-                            <span className="text-xs sm:text-sm font-medium text-primary">
-                                AU${jobDetails.payment.amountPaid}
-                            </span>
-                        </div>
-
-                        <div className="flex sm:grid sm:grid-cols-[160px_auto] justify-between sm:justify-start items-center gap-1 sm:gap-2">
-                            <span className="text-xs sm:text-sm text-primary-light">Platform Fees 15%:</span>
-                            <span className="text-xs sm:text-sm font-medium text-primary">
-                                AU${jobDetails.payment.platformFees}
-                            </span>
-                        </div>
-
-                        <div className="flex sm:grid sm:grid-cols-[160px_auto] justify-between sm:justify-start items-center gap-1 sm:gap-2">
-                            <span className="text-xs sm:text-sm text-primary-light">GST 10%:</span>
-                            <span className="text-xs sm:text-sm font-medium text-primary">
-                                AU${jobDetails.payment.gst}
-                            </span>
-                        </div>
-
-                        <div className="flex sm:grid sm:grid-cols-[160px_1fr] justify-between sm:justify-start items-center gap-2">
-                            <span className="text-xs sm:text-sm text-primary-light">Escrow:</span>
-                            <div className="flex sm:flex-row items-center justify-end sm:justify-between w-full gap-2 sm:gap-3 flex-wrap">
-                                <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
-                                    <span className="text-xs sm:text-sm font-medium text-primary">
-                                        AU${jobDetails.payment.escrow}
-                                    </span>
-                                    <span className="text-[10px] sm:text-xs text-primary-light">
-                                        • released {jobDetails.payment.escrowReleased}
-                                    </span>
-                                </div>
-                                <span
-                                    className={`inline-flex items-center px-3 py-1 rounded-[6px] text-[10px] sm:text-xs font-medium border whitespace-nowrap ${getStatusColor(
-                                        currentEscrowStatus
-                                    )}`}>
-                                    {currentEscrowStatus}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
       </div>
       <ReleaseFundsModal
         isOpen={isReleaseModalOpen}

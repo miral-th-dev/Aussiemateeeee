@@ -286,22 +286,36 @@ export default function JobDetails({ job, onBackToList, onPaymentStatusUpdate })
                     : []),
         },
         timeline:
-            Array.isArray(sourceJob?.activity) && sourceJob.activity.length > 0
-                ? sourceJob.activity.map((item) => ({
-                    event: item.title,
-                    time: item.timestamp
-                        ? new Date(item.timestamp).toLocaleString("en-AU", {
+            (Array.isArray(sourceJob?.timeline) && sourceJob.timeline.length > 0)
+                ? sourceJob.timeline.map((item) => ({
+                    event: item.label || item.title || "",
+                    status: item.status || "",
+                    time: (item.date || item.timestamp)
+                        ? new Date(item.date || item.timestamp).toLocaleDateString("en-GB", {
                             day: "2-digit",
                             month: "2-digit",
                             year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })
+                        }).replace(/\//g, "-")
                         : "",
                 }))
-                : [
-                    { event: "Job created", time: "" },
-                ],
+                : (Array.isArray(sourceJob?.activity) && sourceJob.activity.length > 0)
+                    ? sourceJob.activity.map((item) => ({
+                        event: item.title || item.label || "",
+                        status: item.status || "",
+                        time: (item.timestamp || item.date)
+                            ? new Date(item.timestamp || item.date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                            }).replace(/\//g, "-")
+                            : "",
+                    }))
+                    : [
+                        { event: "Job created", time: "" },
+                    ],
+
+
+
         feedback: {
             rating: sourceJob?.review?.rating || 0,
             comment: sourceJob?.review?.comment || "",

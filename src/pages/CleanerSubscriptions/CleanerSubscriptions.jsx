@@ -74,7 +74,7 @@ export default function CleanerSubscriptions() {
                     Add New Plan
                 </button>
             </div>
-            <div className="max-w-[1200px] mx-auto w-full pb-10 px-4 md:px-0 font-inter">
+            <div className="max-w-[1200px] mx-auto w-full pb-10 font-inter">
 
                 {/* Plans List */}
                 <div className="space-y-4">

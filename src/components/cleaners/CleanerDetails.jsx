@@ -421,7 +421,7 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
         }}
       >
         {/* Top-right actions menu */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 z-20">
           <CustomMenu
             align="right"
             items={[
@@ -590,6 +590,7 @@ export default function CleanerDetails({ cleaner, onBackToList, onJobViewDetail 
         {activeTab === "subscriptions" && (
           <SubscriptionsTab
             cleanerId={cleanerId}
+            cleanerName={displayCleaner.name}
           />
         )}
         {activeTab === "feedback" && (

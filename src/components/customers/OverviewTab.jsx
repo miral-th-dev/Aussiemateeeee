@@ -51,7 +51,7 @@ const mapCustomerJobForUi = (job) => {
   };
 };
 
-export default function OverviewTab({ customer, jobs = [], onViewJobs, loading = false }) {
+export default function OverviewTab({ customer, jobs = [], onViewJobs, loading = false, reviewsPagination = null }) {
   const handleViewJobs = () => {
     if (onViewJobs) {
       onViewJobs();
@@ -63,7 +63,9 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
   const jobsCompleted = customer?.jobsCompleted || (Array.isArray(jobs)
     ? jobs.filter((j) => ["completed", "done"].includes((j?.status || "").toString().toLowerCase())).length
     : 0);
-  const avgCleanerRating = customer?.avgCleanerRating || 4.3;
+  const avgCleanerRating = reviewsPagination?.averageRating ?? customer?.avgCleanerRating ?? "—";
+
+
   const totalSpend = (() => {
     const v = customer?.spend;
     if (v === undefined || v === null) return 0;
@@ -153,37 +155,38 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
               style={{ display: "flex", alignItems: "stretch", paddingBottom: "8px" }}
             >
               {recentJobs.map((job) => {
-                const isCompleted = job.status === "Completed";
-                const isCancelled = job.status === "Cancelled";
                 return (
+
                   <SwiperSlide
                     key={job.id}
-                    className="h-full flex !w-[220px] md:!w-[300px]"
-                    style={{ height: "100%", display: "flex" }}
+                    className="!h-auto flex !w-[220px] md:!w-[300px]"
                   >
                     <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-2.5 w-full h-full shadow-sm flex flex-col hover:border-primary/20 transition-all group">
                       {/* Status Badge */}
                       <div>
                         <span
                           className={`px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold whitespace-nowrap inline-flex items-center gap-2 ${
-                            job.status === "Completed"
+                            job.rawStatus === "completed"
                               ? "bg-[#EAFFF1] text-[#17C653] border border-[#17C65333]"
-                              : job.status === "Cancelled"
+                              : job.rawStatus === "cancelled"
                                 ? "bg-[#FFEEF3] text-[#F8285A] border border-[#F8285A33]"
-                                : "bg-[#FFF8DD] text-[#F6B100] border border-[#F6B10033]"
+                                : job.rawStatus === "on_the_way" || job.rawStatus === "in_progress"
+                                  ? "bg-[#FFF8DD] text-[#F6B100] border border-[#F6B10033]"
+                                  : "bg-[#E1F0FF] text-[#1B84FF] border border-[#1B84FF33]"
                           }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              job.status === "Completed" ? "bg-[#17C653]" : job.status === "Cancelled" ? "bg-[#F8285A]" : "bg-[#F6B100]"
+                              job.rawStatus === "completed" ? "bg-[#17C653]" : job.rawStatus === "cancelled" ? "bg-[#F8285A]" : job.rawStatus === "on_the_way" || job.rawStatus === "in_progress" ? "bg-[#F6B100]" : "bg-[#1B84FF]"
                             }`}
                           />
-                          {job.status}
+                          <span className="capitalize">{job.rawStatus.replace(/_/g, " ") || "Pending"}</span>
                         </span>
                       </div>
 
+
                       {/* Category & Service Type */}
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 flex-1">
                         <p className="text-[#80849C] font-medium text-[11px] md:text-xs tracking-wide">
                           {job.categoryName}
                         </p>
@@ -193,7 +196,7 @@ export default function OverviewTab({ customer, jobs = [], onViewJobs, loading =
                       </div>
 
                       {/* Footer Info */}
-                      <div className="space-y-1.5 mt-1.5">
+                      <div className="space-y-1.5 mt-auto pt-1.5">
                         <div className="flex items-center gap-2 text-[#7E8299]">
                           <MapPin size={14} className="text-[#A1A5B7] flex-shrink-0" />
                           <span className="text-[11px] md:text-xs font-medium truncate">

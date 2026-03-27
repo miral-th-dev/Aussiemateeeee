@@ -25,7 +25,7 @@ const formatDate = (dateString) => {
   });
 };
 
-const SubscriptionsTab = ({ cleanerId }) => {
+const SubscriptionsTab = ({ cleanerId, cleanerName }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [subscriptionData, setSubscriptionData] = useState(null);
@@ -130,6 +130,257 @@ const SubscriptionsTab = ({ cleanerId }) => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleExportHistory = () => {
+    if (!filteredPaymentHistory || filteredPaymentHistory.length === 0) {
+      alert("No payment history to export.");
+      return;
+    }
+
+    const printWindow = window.open("", "", "width=1200,height=800");
+    if (!printWindow) return;
+
+    const reportDate = new Date().toLocaleDateString("en-AU", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+
+    // Design colors
+    const primaryColor = "#1F6FEB";
+    const darkColor = "#111827";
+    const lightTextColor = "#6B7280";
+    const borderColor = "#F1F1F4";
+
+    const styles = `
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                
+                * { box-sizing: border-box; }
+                
+                body { 
+                    font-family: 'Inter', sans-serif; 
+                    padding: 40px; 
+                    color: ${darkColor};
+                    line-height: 1.5;
+                    background: white;
+                }
+                
+                .wrapper {
+                    max-width: 850px;
+                    margin: 0 auto;
+                }
+                
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    margin-bottom: 50px;
+                    border-bottom: 2px solid ${primaryColor};
+                    padding-bottom: 20px;
+                }
+                
+                .brand h1 {
+                    font-size: 28px;
+                    font-weight: 800;
+                    color: ${primaryColor};
+                    margin: 0;
+                }
+                
+                .brand p {
+                    font-size: 14px;
+                    color: ${lightTextColor};
+                    margin: 4px 0 0 0;
+                }
+                
+                .meta {
+                    text-align: right;
+                }
+                
+                .meta h2 {
+                    font-size: 24px;
+                    font-weight: 700;
+                    margin: 0;
+                    color: ${darkColor};
+                }
+                
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 40px;
+                    margin-bottom: 40px;
+                }
+                
+                .info-box h3 {
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    color: ${lightTextColor};
+                    letter-spacing: 0.05em;
+                    margin-bottom: 8px;
+                }
+                
+                .info-box p {
+                    margin: 2px 0;
+                    font-size: 15px;
+                    font-weight: 500;
+                }
+
+                .summary-card {
+                  background: #F9FAFB;
+                  border-radius: 12px;
+                  padding: 20px;
+                  margin-bottom: 40px;
+                  display: grid;
+                  grid-template-columns: repeat(3, 1fr);
+                  gap: 20px;
+                }
+
+                .stat-item p:first-child {
+                  font-size: 11px;
+                  text-transform: uppercase;
+                  color: ${lightTextColor};
+                  margin: 0 0 4px 0;
+                }
+
+                .stat-item p:last-child {
+                  font-size: 18px;
+                  font-weight: 700;
+                  color: ${darkColor};
+                  margin: 0;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                
+                th {
+                    text-align: left;
+                    background: #F9FAFB;
+                    padding: 12px 15px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: ${lightTextColor};
+                    text-transform: uppercase;
+                    border-bottom: 1px solid ${borderColor};
+                }
+                
+                td {
+                    padding: 15px;
+                    border-bottom: 1px solid ${borderColor};
+                    font-size: 14px;
+                }
+
+                .footer {
+                    margin-top: 60px;
+                    text-align: center;
+                    border-top: 1px solid ${borderColor};
+                    padding-top: 20px;
+                    font-size: 12px;
+                    color: ${lightTextColor};
+                }
+                
+                @media print {
+                    body { padding: 0; }
+                    .wrapper { width: 100%; }
+                }
+            </style>
+        `;
+
+    const rowsHtml = filteredPaymentHistory.map(row => `
+      <tr>
+        <td style="font-weight: 500;">${formatDate(row.createdAt)}</td>
+        <td>${row.planName || row.description || "N/A"}</td>
+        <td>${row.transactionId || row._id || "—"}</td>
+        <td style="text-align: right; font-weight: 600;">$${Number(row.amount ?? 0).toLocaleString()}</td>
+      </tr>
+    `).join("");
+
+    const html = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Payment History Report</title>
+                    ${styles}
+                </head>
+                <body>
+                    <div class="wrapper">
+                        <div class="header">
+                            <div class="brand">
+                                <h1>AussieMate</h1>
+                                <p>Cleaner Subscription History</p>
+                            </div>
+                            <div class="meta">
+                                <h2>Payment History</h2>
+                                <p style="color: ${lightTextColor}; font-size: 14px;">Report Generated: ${reportDate}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-box">
+                                <h3>Account Information</h3>
+                                <p style="font-size: 18px; font-weight: 700; color: ${darkColor}; margin-bottom: 4px;">${cleanerName || 'Cleaner'}</p>
+                                <p>ID: ${cleanerId}</p>
+                            </div>
+                            ${subscriptionData ? `
+                            <div class="info-box" style="text-align: right;">
+                                <h3>Current Subscription</h3>
+                                <p>${subscriptionData.planName}</p>
+                                <p>${subscriptionData.status.toUpperCase()}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        ${subscriptionData ? `
+                        <div class="summary-card">
+                          <div class="stat-item">
+                            <p>Credits Remaining</p>
+                            <p>${subscriptionData.creditsRemaining}</p>
+                          </div>
+                          <div class="stat-item">
+                            <p>Available leads</p>
+                            <p>${subscriptionData.estimatedLeadsRemaining}</p>
+                          </div>
+                          <div class="stat-item">
+                            <p>Subscription Status</p>
+                            <p style="color: ${subscriptionData.status.toLowerCase() === 'active' ? '#10B981' : '#F1416C'}">${subscriptionData.status.toUpperCase()}</p>
+                          </div>
+                        </div>
+                        ` : ''}
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Plan / Description</th>
+                                    <th>Transaction ID</th>
+                                    <th style="text-align: right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+
+                        <div class="footer">
+                            <p>© ${new Date().getFullYear()} AussieMate. This is a system-generated document.</p>
+                            <p>Confidential cleaner account data.</p>
+                        </div>
+                    </div>
+
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.onafterprint = function() { window.close(); };
+                        };
+                    </script>
+                </body>
+            </html>
+        `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
 
   return (
     <div className="space-y-6 font-inter">
@@ -249,11 +500,15 @@ const SubscriptionsTab = ({ cleanerId }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button className="flex items-center gap-2 px-3 py-2 border border-[#DBDFE9] rounded-xl text-[13px] font-medium text-[#4B5675] hover:bg-[#F9FAFB] transition-colors">
+          <button 
+            className="flex items-center gap-2 px-3 py-2 cursor-pointer border border-[#DBDFE9] rounded-xl text-[13px] font-medium text-[#4B5675] hover:bg-[#F9FAFB] transition-colors"
+            onClick={handleExportHistory}
+          >
             <Upload size={16} className="text-[#99A1B7]" />
             Export history
           </button>
         </div>
+
 
         <div className="w-full overflow-x-auto">
   <table className="min-w-[500px] w-full text-left border-collapse">

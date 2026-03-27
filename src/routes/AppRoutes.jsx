@@ -11,6 +11,7 @@ import EditPlan from "../pages/CleanerSubscriptions/EditPlan";
 import Settings from "../pages/Settings";
 import ServiceCategories from "../pages/ServiceCategories/ServiceCategories";
 import ServiceSubCategories from "../pages/ServiceCategories/ServiceSubCategories";
+import FAQs from "../pages/FAQs";
 
 
 export default function AppRoutes() {
@@ -32,6 +33,7 @@ export default function AppRoutes() {
       <Route path="/settings" element={<Settings />} />
       <Route path="/service-categories" element={<ServiceCategories />} />
       <Route path="/service-categories/:categoryId" element={<ServiceSubCategories />} />
+      <Route path="/faqs" element={<FAQs />} />
 
     </Routes>
   );

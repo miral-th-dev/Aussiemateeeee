@@ -21,4 +21,6 @@ export const ENDPOINTS = {
   REVENUE_MTD: '/revenue/mtd',
   SUBSCRIPTION_REPORT: '/admin/subscriptions/report',
   CLEANER_PAYMENTS: '/admin/cleaners',
+  FAQ_CATEGORIES: '/admin/faq-categories',
+  FAQS: '/admin/faqs',
 };

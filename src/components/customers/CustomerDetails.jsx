@@ -176,10 +176,10 @@ export default function CustomerDetails({ customer, onBackToList, onJobViewDetai
         }}
       >
         {/* Top-right actions menu */}
-        <div className="absolute top-4 right-4 flex items-center gap-3">
+        <div className="absolute top-4 right-4 flex items-center gap-3 z-20">
           {/* Status Badge */}
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#EAFFF1] border border-[#17C65333] text-[#17C653]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#17C653]"></span>
+          <span className="inline-flex items-center gap-1 px-2 md:px-3 md:py-1.5 py-1 rounded-full text-[10px] font-semibold bg-[#EAFFF1] border border-[#17C65333] text-[#17C653] h-fit">
+            <span className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-[#17C653]"></span>
             {customer.status || "Active"}
           </span>
 
@@ -279,7 +279,9 @@ export default function CustomerDetails({ customer, onBackToList, onJobViewDetai
             jobs={customerJobs}
             onViewJobs={() => setActiveTab("jobsHistory")}
             loading={loadingJobs}
+            reviewsPagination={reviewsPagination}
           />
+
         )}
         {activeTab === "jobsHistory" && (
           <JobsHistoryTab

@@ -13,6 +13,17 @@ export default function Settings() {
   const [fileError, setFileError] = useState(null);
   const fileInputRef = useRef(null);
 
+  // Auto-clear success message after 2 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+
   // Load user data on mount
   useEffect(() => {
     refreshProfile().catch(() => { });

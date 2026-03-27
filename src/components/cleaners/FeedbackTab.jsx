@@ -74,7 +74,7 @@ export default function FeedbackTab({ cleaner, averageRating = 0, reviews = [], 
 
                 {/* ⭐ Average Rating Summary Card (same height as others) */}
                 <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 lg:p-6
-        w-full md:w-[260px] lg:w-[320px] h-[150px] md:h-[180px] lg:h-[212px] flex-shrink-0 flex flex-col justify-center 
+        w-full md:w-[260px] lg:w-[320px] h-[180px] sm:h-[180px] md:h-[200px] lg:h-[220px] flex-shrink-0 flex flex-col justify-center 
         items-center">
 
                     <p className="text-sm md:text-sm font-medium text-primary-light mb-2 md:mb-3">
@@ -105,13 +105,13 @@ export default function FeedbackTab({ cleaner, averageRating = 0, reviews = [], 
                             slidesPerView="auto"
                             autoplay={{ delay: 3000, disableOnInteraction: false }}
                             loop={mappedReviews.length > 1}
-                            className="!overflow-hidden !flex h-[150px] md:h-[180px] lg:h-[212px] w-full"
+                            className="!overflow-hidden !flex h-[180px] sm:h-[180px] md:h-[200px] lg:h-[220px] w-full"
                             style={{ display: "flex", alignItems: "stretch" }}
                         >
                             {mappedReviews.map((feedback) => (
                                 <SwiperSlide
                                     key={feedback.id}
-                                    className="h-full flex !w-[220px] md:!w-[260px] lg:!w-[320px]"
+                                    className="h-full flex !w-[260px] md:!w-[280px] lg:!w-[320px]"
                                     style={{ height: "100%", display: "flex" }}
                                 >
                                     {/* ⭐ Feedback Card (same height as Avg Rating card) */}
@@ -119,34 +119,35 @@ export default function FeedbackTab({ cleaner, averageRating = 0, reviews = [], 
                                         w-full h-full flex flex-col cursor-pointer overflow-hidden">
 
                                         {/* Header */}
-                                        <div className="flex items-start justify-between mb-2 gap-2">
-                                            <h3 className="text-sm font-semibold text-primary-light flex-1 truncate">
+                                        <div className="flex items-start justify-between mb-1 md:mb-2 gap-1 md:gap-2">
+                                            <h3 className="text-sm lg:text-[15px] font-semibold text-primary-light flex-1 truncate">
                                                 {feedback.title}
                                             </h3>
                                         </div>
 
                                         {/* Feedback Text */}
-                                        <p className="text-xs md:text-sm text-primary mb-2 flex-grow line-clamp-3 overflow-hidden">
+                                        <p className="text-[11px] md:text-xs lg:text-sm text-primary mb-1 md:mb-2 flex-grow line-clamp-2 md:line-clamp-3 overflow-hidden leading-snug">
                                             {feedback.feedback}
                                         </p>
 
                                         {/* Stars and Rating */}
-                                        <div className="flex items-center gap-2 mb-2 flex-shrink-0">
-                                            <div className="scale-90 md:scale-100 origin-left">
+                                        <div className="flex items-center gap-2 mb-1 md:mb-2 flex-shrink-0">
+                                            <div className="scale-75 md:scale-90 lg:scale-100 origin-left">
                                                 {renderStars(feedback.rating)}
                                             </div>
-                                            <span className="text-xs md:text-sm font-medium text-primary">
+                                            <span className="text-[11px] md:text-xs lg:text-sm font-medium text-primary">
                                                 {Number(feedback.rating || 0).toFixed(1)}
                                             </span>
                                         </div>
 
                                         {/* Tags */}
-                                        <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2 flex-shrink-0">
+                                        <div className="flex flex-wrap gap-1 md:gap-1.5 lg:gap-2 mb-2 flex-shrink-0">
                                             {feedback.tags.slice(0, 3).map((tag, index) => (
                                                 <span
                                                     key={index}
-                                                    className="px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs 
-                                                        font-medium bg-[#EBF2FD] text-[#2563EB] border border-[#2563EB33]"
+                                                    className={`px-1.5 md:px-2 lg:px-3 py-0.5 lg:py-1 rounded-full text-[9px] md:text-[10px] lg:text-xs 
+                                                        font-medium bg-[#EBF2FD] text-[#2563EB] border border-[#2563EB33] whitespace-nowrap 
+                                                        ${index === 2 ? "hidden lg:inline-flex" : "inline-flex"}`}
                                                 >
                                                     {tag}
                                                 </span>
@@ -154,16 +155,17 @@ export default function FeedbackTab({ cleaner, averageRating = 0, reviews = [], 
                                         </div>
 
                                         {/* Customer Info */}
-                                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E5E7EB] flex-shrink-0">
+                                        <div className="flex items-center justify-end gap-2 pt-1.5 md:pt-2 border-t border-[#E5E7EB] flex-shrink-0">
                                             <img
                                                 src={feedback.customer.avatar}
                                                 alt={feedback.customer.name}
-                                                className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
+                                                className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full object-cover"
                                             />
-                                            <span className="text-xs md:text-sm font-medium text-primary">
+                                            <span className="text-[11px] md:text-xs lg:text-sm font-medium text-primary">
                                                 {feedback.customer.name}
                                             </span>
                                         </div>
+
                                     </div>
                                 </SwiperSlide>
                             ))}
@@ -175,3 +177,4 @@ export default function FeedbackTab({ cleaner, averageRating = 0, reviews = [], 
 
     );
 }
+

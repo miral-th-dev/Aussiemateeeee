@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, ChevronLeft, ChevronRight, Crown } from "lucide-react";
+import { LogOut, ChevronLeft, ChevronRight, Crown, HelpCircle } from "lucide-react";
 import { clearAuth } from "../utils/auth";
 import logo from '../assets/icon/logoo.svg';
 import dashIcon from '../assets/icon/dash.svg';
@@ -69,6 +69,11 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       iconComponent: Crown,
     },
     {
+      name: "FAQs",
+      path: "/faqs",
+      iconComponent: HelpCircle,
+    },
+    {
       name: "Settings",
       path: "/settings",
       icon: settingsIcon,
@@ -81,7 +86,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       {/* Overlay for mobile and medium screens */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 lg:hidden transition-opacity duration-300 ease-in-out"
+          className="fixed inset-0 z-30 lg:hidden bg-black/40 transition-opacity duration-300 ease-in-out"
           onClick={toggleSidebar}
         />
       )}
