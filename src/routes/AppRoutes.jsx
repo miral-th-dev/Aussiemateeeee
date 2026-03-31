@@ -12,6 +12,9 @@ import Settings from "../pages/Settings";
 import ServiceCategories from "../pages/ServiceCategories/ServiceCategories";
 import ServiceSubCategories from "../pages/ServiceCategories/ServiceSubCategories";
 import FAQs from "../pages/FAQs";
+import ExtraCredits from "../pages/ExtraCredits/ExtraCredits";
+import AddCredit from "../pages/ExtraCredits/AddCredit";
+import EditCredit from "../pages/ExtraCredits/EditCredit";
 
 
 export default function AppRoutes() {
@@ -34,6 +37,9 @@ export default function AppRoutes() {
       <Route path="/service-categories" element={<ServiceCategories />} />
       <Route path="/service-categories/:categoryId" element={<ServiceSubCategories />} />
       <Route path="/faqs" element={<FAQs />} />
+      <Route path="/extra-credits" element={<ExtraCredits />} />
+      <Route path="/extra-credits/add" element={<AddCredit />} />
+      <Route path="/extra-credits/edit/:creditId" element={<EditCredit />} />
 
     </Routes>
   );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, ChevronLeft, ChevronRight, Crown, HelpCircle } from "lucide-react";
+import { LogOut, ChevronLeft, ChevronRight, Crown, HelpCircle, Coins } from "lucide-react";
 import { clearAuth } from "../utils/auth";
 import logo from '../assets/icon/logoo.svg';
 import dashIcon from '../assets/icon/dash.svg';
@@ -15,8 +15,7 @@ import customerIcon from '../assets/icon/customer.svg';
 import customerLightIcon from '../assets/icon/customerLight.svg';
 import serviceIcon from '../assets/icon/sevice.svg';
 import serviceLightIcon from '../assets/icon/serviceLight.svg';
-import dollarIcon from '../assets/icon/dollar.svg';
-import dollarLightIcon from '../assets/icon/dollarLight.svg';
+
 import settingsIcon from '../assets/icon/settings.svg';
 import settingsLightIcon from '../assets/icon/settingsLight.svg';
 import ActionModal from "../components/common/ActionModal";
@@ -67,6 +66,11 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       name: "Cleaner Subscriptions",
       path: "/cleaner-subscriptions",
       iconComponent: Crown,
+    },
+    {
+      name: "Extra Credits",
+      path: "/extra-credits",
+      iconComponent: Coins,
     },
     {
       name: "FAQs",
