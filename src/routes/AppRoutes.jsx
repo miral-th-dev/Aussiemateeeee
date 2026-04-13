@@ -15,6 +15,9 @@ import FAQs from "../pages/FAQs";
 import ExtraCredits from "../pages/ExtraCredits/ExtraCredits";
 import AddCredit from "../pages/ExtraCredits/AddCredit";
 import EditCredit from "../pages/ExtraCredits/EditCredit";
+import CommercialJobTypes from "../pages/CommercialJobTypes/CommercialJobTypes";
+import ExtraServiceItems from "../pages/ExtraServiceItems/ExtraServiceItems";
+
 
 
 export default function AppRoutes() {
@@ -40,6 +43,9 @@ export default function AppRoutes() {
       <Route path="/extra-credits" element={<ExtraCredits />} />
       <Route path="/extra-credits/add" element={<AddCredit />} />
       <Route path="/extra-credits/edit/:creditId" element={<EditCredit />} />
+      <Route path="/commercial-job-types" element={<CommercialJobTypes />} />
+      <Route path="/extra-service-items" element={<ExtraServiceItems />} />
+
 
     </Routes>
   );

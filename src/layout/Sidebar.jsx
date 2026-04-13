@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, ChevronLeft, ChevronRight, Crown, HelpCircle, Coins } from "lucide-react";
+import { LogOut, ChevronLeft, ChevronRight, Crown, HelpCircle, Coins, Briefcase, PlusCircle } from "lucide-react";
+
 import { clearAuth } from "../utils/auth";
 import logo from '../assets/icon/logoo.svg';
 import dashIcon from '../assets/icon/dash.svg';
@@ -63,6 +64,17 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       iconLight: serviceIcon
     },
     {
+      name: "Commercial Job Types",
+      path: "/commercial-job-types",
+      iconComponent: Briefcase,
+    },
+    {
+      name: "Extra Service Items",
+      path: "/extra-service-items",
+      iconComponent: PlusCircle,
+    },
+    {
+
       name: "Cleaner Subscriptions",
       path: "/cleaner-subscriptions",
       iconComponent: Crown,
