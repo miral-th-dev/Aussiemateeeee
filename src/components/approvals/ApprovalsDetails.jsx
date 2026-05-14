@@ -11,6 +11,7 @@ import {
   Briefcase,
   Eye,
 } from "lucide-react";
+import { Snackbar, Alert } from "@mui/material";
 import approvalsBg from "../../assets/image/approvalsBg.svg";
 import approveKycImg from "../../assets/image/approveKyc.svg";
 import rejectKycImg from "../../assets/image/rejectKyc.svg";
@@ -228,13 +229,30 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
     return cleanerSrc?.tier ?? "none";
   });
 
-  const isKycComplete = documents.length > 0 && documents.every(doc =>
-    doc.status !== "Not Uploaded" &&
-    !(doc.type === "abn" && (!doc.value || doc.value === "null" || doc.value === ""))
-  );
+  const isKycComplete = documents.length > 0 && documents.every(doc => {
+    // ABN is mandatory
+    if (doc.type === "abn") {
+      return doc.value && doc.value !== "null" && doc.value !== "";
+    }
+    // Only Police Check and Photo ID are mandatory for the KYC "Complete" check
+    if (doc.label === "Police Check" || doc.label === "Photo ID") {
+      return doc.status !== "Not Uploaded";
+    }
+    // Others (Training Certificates, Visa/Work Rights) are optional
+    return true;
+  });
   const [savingKyc, setSavingKyc] = useState(false);
   const [rejectModal, setRejectModal] = useState({ open: false, docId: null, docKey: null, docLabel: "" });
   const [rejectReason, setRejectReason] = useState("");
+  const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
+
+  const showNotification = (message, severity = "success") => {
+    setNotification({ open: true, message, severity });
+  };
 
   const cleanerId = originalData._id || cleaner._id || cleaner.id;
 
@@ -243,6 +261,10 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
     const abn = docs.find((d) => d.type === "abn");
     const abnVerified = abn?.status === "Verified";
 
+    // Check mandatory documents
+    const mandatoryDocs = docs.filter(d => d.label === "Police Check" || d.label === "Photo ID");
+    const allMandatoryUploaded = mandatoryDocs.every(d => d.status !== "Not Uploaded");
+
     const docStatuses = docs
       .filter((d) => d.type !== "abn")
       .filter((d) => d.status !== "Not Uploaded")
@@ -250,10 +272,11 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
 
     if (docStatuses.includes("Rejected")) return "Rejected";
     if (docStatuses.length === 0) return "Pending";
+    
     const allApproved = docStatuses.every((s) => s === "Approved");
 
-    if (allApproved && abnVerified) return "Verified";
-    if (allApproved) return "Approved";
+    if (allApproved && abnVerified && allMandatoryUploaded) return "Verified";
+    if (allApproved && allMandatoryUploaded) return "Approved";
     return "Pending";
   }, []);
 
@@ -395,10 +418,12 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
           doc.type === "abn" ? { ...doc, status: checked ? "Verified" : "Pending" } : doc
         );
         persistOverallStatusIfPossible(next);
+        showNotification("ABN verification updated successfully", "success");
         return next;
       });
     } catch (e) {
       console.error("Failed to update ABN verification", e);
+      showNotification(e?.response?.data?.message || "Failed to update ABN verification", "error");
     } finally {
       setSavingKyc(false);
     }
@@ -480,8 +505,10 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
         ? documents.map((d) => (d.type === "abn" ? d : { ...d, status: nextStatus }))
         : documents.map((d) => (d.id === docId ? { ...d, status: nextStatus } : d));
       await persistOverallStatusIfPossible(nextDocs);
+      showNotification(`${isBulkAll ? "All documents" : doc.label} ${action === "approve" ? "approved" : "rejected"} successfully`, "success");
     } catch (e) {
       console.error("Failed to update document status", e);
+      showNotification(e?.response?.data?.message || `Failed to ${action} document`, "error");
       // Roll back on failure
       if (isBulkAll) {
         await refreshKycDocuments();
@@ -833,8 +860,8 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
                 <span className="flex flex-col gap-2">
                   <span>{`This will enable ${cleaner.name} to receive jobs in their radius (${cleaner.radius || originalData.radius || "0–20 km"}).`}</span>
                   {!isKycComplete && (
-                    <span className="text-[#F1416C] font-semibold text-xs mt-2 bg-[#FFE5E9] p-3 rounded-lg border border-[#F1416C33] text-left">
-                      ⚠️ Cannot approve KYC. Please ensure all documents (Police Check, Photo ID, Training Certificates) are uploaded and the ABN number is provided.
+                    <span className="text-[#F6B100] font-semibold text-xs mt-2 bg-[#FFF8DD] p-3 rounded-lg border border-[#F6B10033] text-left">
+                      ℹ️ Some documents (Police Check, Photo ID or ABN) are missing, but you can still proceed with approval if you have verified them manually.
                     </span>
                   )}
                 </span>
@@ -845,9 +872,7 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
           }
           primaryLabel={
             activeAction === "approve"
-              ? isKycComplete
-                ? "Approve KYC"
-                : "Missing Documents"
+              ? "Approve KYC"
               : activeAction === "reject"
                 ? "Yes, Reject"
                 : savingKyc
@@ -865,9 +890,6 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
 
             // Approve KYC = verify ABN + approve all documents
             if (activeAction === "approve") {
-              if (!isKycComplete) {
-                return;
-              }
               try {
                 setSavingKyc(true);
                 const abnDoc = documents.find((d) => d.type === "abn");
@@ -876,8 +898,10 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
                 }
                 await approveCleanerKyc(cleanerId, { action: "approve", documentType: "all" });
                 await refreshKycDocuments();
+                showNotification("Cleaner approved successfully", "success");
               } catch (e) {
                 console.error("Failed to approve all KYC", e);
+                showNotification(e?.response?.data?.message || "Failed to approve KYC", "error");
               } finally {
                 setSavingKyc(false);
                 closeModal();
@@ -898,6 +922,7 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
               try {
                 setSavingKyc(true);
                 await suspendUser(cleanerId);
+                showNotification("User suspended successfully", "success");
                 // Navigate back to approvals list after successful suspend
                 closeModal();
                 if (onBackToList) {
@@ -905,8 +930,7 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
                 }
               } catch (e) {
                 console.error("Failed to suspend user", e);
-                // Show error and keep modal open so user can retry
-                alert(e?.response?.data?.message || e?.message || "Failed to suspend user. Please try again.");
+                showNotification(e?.response?.data?.message || "Failed to suspend user", "error");
               } finally {
                 setSavingKyc(false);
               }
@@ -955,6 +979,21 @@ export default function ApprovalsDetails({ cleaner, onBackToList }) {
           setRejectReason("");
         }}
       />
+
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={4000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.severity}
+          sx={{ width: "100%", borderRadius: "8px" }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
